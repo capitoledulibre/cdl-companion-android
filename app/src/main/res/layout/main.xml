@@ -54,7 +54,7 @@
                             android:layout_height="wrap_content"
                             android:padding="@dimen/main_menu_padding"
                             android:scaleType="center"
-                            android:src="@drawable/fosdem_title"/>
+                            android:src="@drawable/cdl_title"/>
 
                         <org.toulibre.cdl.widgets.AdapterLinearLayout
                             android:id="@+id/sections"

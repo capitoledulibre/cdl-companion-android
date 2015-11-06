@@ -12,7 +12,7 @@ import java.util.Locale;
 
 public class Day implements Parcelable {
 
-	private static final DateFormat DAY_DATE_FORMAT = DateUtils.withFrenchTimeZone(new SimpleDateFormat("EEEE", Locale.US));
+	private static final DateFormat DAY_DATE_FORMAT = DateUtils.withFrenchTimeZone(new SimpleDateFormat("EEEE", Locale.FRENCH));
 
 	private int index;
 	private Date date;
