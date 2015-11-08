@@ -8,17 +8,14 @@ import org.toulibre.cdl.R;
 
 public class Track implements Parcelable {
 
-	public static enum Type {
-		other(R.string.other),
+	public enum Type {
 		keynote(R.string.keynote),
-		maintrack(R.string.main_track),
-		devroom(R.string.developer_room),
-		lightningtalk(R.string.lightning_talk),
-		certification(R.string.certification_exam);
+		conference(R.string.conference),
+		atelier(R.string.atelier);
 
 		private final int nameResId;
 
-		private Type(@StringRes int nameResId) {
+		Type(@StringRes int nameResId) {
 			this.nameResId = nameResId;
 		}
 

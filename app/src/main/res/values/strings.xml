@@ -43,12 +43,9 @@
     <string name="now_empty">Pendant le Capitole du Libre, les évènements en cours seront affichées ici.</string>
 
     <!-- Track types -->
-    <string name="other">Other</string>
     <string name="keynote">Keynote</string>
-    <string name="main_track">Main track</string>
-    <string name="developer_room">Developer room</string>
-    <string name="lightning_talk">Lightning talk</string>
-    <string name="certification_exam">Certification Exam</string>
+    <string name="conference">Conférence</string>
+    <string name="atelier">Atelier</string>
 
     <!-- Search -->
     <string name="search_events">Chercher des évènements</string>

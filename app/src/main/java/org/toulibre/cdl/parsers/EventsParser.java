@@ -92,7 +92,7 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
 
 						String duration = null;
 						String trackName = "";
-						Track.Type trackType = Track.Type.other;
+						Track.Type trackType = Track.Type.conference;
 
 						while (!isNextEndTag("event")) {
 							if (isStartTag()) {
@@ -126,7 +126,7 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
 										try {
 											trackType = Enum.valueOf(Track.Type.class, parser.nextText());
 										} catch (Exception e) {
-											// trackType will be "other"
+											// trackType will be "conference"
 										}
 										break;
 									case "abstract":
