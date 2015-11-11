@@ -54,9 +54,9 @@
                             android:layout_height="wrap_content"
                             android:padding="@dimen/main_menu_padding"
                             android:scaleType="center"
-                            android:src="@drawable/fosdem_title"/>
+                            android:src="@drawable/cdl_title"/>
 
-                        <be.digitalia.fosdem.widgets.AdapterLinearLayout
+                        <org.toulibre.cdl.widgets.AdapterLinearLayout
                             android:id="@+id/sections"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
