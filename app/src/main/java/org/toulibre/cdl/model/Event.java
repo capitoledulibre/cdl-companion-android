@@ -1,258 +1,272 @@
 package org.toulibre.cdl.model;
 
-import java.util.Date;
-import java.util.List;
+import org.toulibre.cdl.api.Urls;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import org.toulibre.cdl.api.Urls;
-import org.toulibre.cdl.db.DatabaseManager;
+
+import java.util.Date;
+import java.util.List;
 
 public class Event implements Parcelable {
 
-	private long id;
-	private Day day;
-	private Date startTime;
-	private Date endTime;
-	private String roomName;
-	private String slug;
-	private String title;
-	private String subTitle;
-	private Track track;
-	private String abstractText;
-	private String description;
-	private String personsSummary;
-	private List<Person> persons; // Optional
-	private List<Link> links; // Optional
+    private long id;
 
-	public Event() {
-	}
+    private Day day;
 
-	public long getId() {
-		return id;
-	}
+    private Date startTime;
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    private Date endTime;
 
-	public Day getDay() {
-		return day;
-	}
+    private String roomName;
 
-	public void setDay(Day day) {
-		this.day = day;
-	}
+    private String slug;
 
-	public Date getStartTime() {
-		return startTime;
-	}
+    private String title;
 
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
+    private String subTitle;
 
-	public Date getEndTime() {
-		return endTime;
-	}
+    private Track track;
 
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
+    private String abstractText;
 
-	public boolean isRunningAtTime(long time) {
-		return (startTime != null) && (endTime != null) && (startTime.getTime() < time) && (time < endTime.getTime());
-	}
+    private String description;
 
-	/**
-	 * 
-	 * @return The event duration in minutes
-	 */
-	public int getDuration() {
-		if ((startTime == null) || (endTime == null)) {
-			return 0;
-		}
-		return (int) ((this.endTime.getTime() - this.startTime.getTime()) / 1000L);
-	}
+    private String personsSummary;
 
-	public String getRoomName() {
-		return (roomName == null) ? "" : roomName;
-	}
+    private List<Person> persons; // Optional
 
-	public void setRoomName(String roomName) {
-		this.roomName = roomName;
-	}
+    private List<Link> links; // Optional
 
-	public String getSlug() {
-		return slug;
-	}
+    public Event() {
+    }
 
-	public void setSlug(String slug) {
-		this.slug = slug;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public String getUrl() {
-		return Urls.getEvent(slug, DatabaseManager.getInstance().getYear());
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public Day getDay() {
+        return day;
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public void setDay(Day day) {
+        this.day = day;
+    }
 
-	public String getSubTitle() {
-		return subTitle;
-	}
+    public Date getStartTime() {
+        return startTime;
+    }
 
-	public void setSubTitle(String subTitle) {
-		this.subTitle = subTitle;
-	}
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
 
-	public Track getTrack() {
-		return track;
-	}
+    public Date getEndTime() {
+        return endTime;
+    }
 
-	public void setTrack(Track track) {
-		this.track = track;
-	}
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
 
-	public String getAbstractText() {
-		return abstractText;
-	}
+    public boolean isRunningAtTime(long time) {
+        return (startTime != null) && (endTime != null) && (startTime.getTime() < time) && (time < endTime.getTime());
+    }
 
-	public void setAbstractText(String abstractText) {
-		this.abstractText = abstractText;
-	}
+    /**
+     * @return The event duration in minutes
+     */
+    public int getDuration() {
+        if ((startTime == null) || (endTime == null)) {
+            return 0;
+        }
+        return (int) ((this.endTime.getTime() - this.startTime.getTime()) / 1000L);
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getRoomName() {
+        return (roomName == null) ? "" : roomName;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
 
-	public String getPersonsSummary() {
-		if (personsSummary != null) {
-			return personsSummary;
-		}
-		if (persons != null) {
-			return TextUtils.join(", ", persons);
-		}
-		return "";
-	}
+    public String getSlug() {
+        return slug;
+    }
 
-	public void setPersonsSummary(String personsSummary) {
-		this.personsSummary = personsSummary;
-	}
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
 
-	public List<Person> getPersons() {
-		return persons;
-	}
+    public String getUrl() {
+        return Urls.getEvent(id);
+    }
 
-	public void setPersons(List<Person> persons) {
-		this.persons = persons;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public List<Link> getLinks() {
-		return links;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public void setLinks(List<Link> links) {
-		this.links = links;
-	}
+    public String getSubTitle() {
+        return subTitle;
+    }
 
-	@Override
-	public String toString() {
-		return title;
-	}
+    public void setSubTitle(String subTitle) {
+        this.subTitle = subTitle;
+    }
 
-	@Override
-	public int hashCode() {
-		return (int) (id ^ (id >>> 32));
-	}
+    public Track getTrack() {
+        return track;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		Event other = (Event) obj;
-		return id == other.id;
-	}
+    public void setTrack(Track track) {
+        this.track = track;
+    }
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
+    public String getAbstractText() {
+        return abstractText;
+    }
 
-	@Override
-	public void writeToParcel(Parcel out, int flags) {
-		out.writeLong(id);
-		day.writeToParcel(out, flags);
-		out.writeLong((startTime == null) ? 0L : startTime.getTime());
-		out.writeLong((endTime == null) ? 0L : endTime.getTime());
-		out.writeString(roomName);
-		out.writeString(slug);
-		out.writeString(title);
-		out.writeString(subTitle);
-		track.writeToParcel(out, flags);
-		out.writeString(abstractText);
-		out.writeString(description);
-		out.writeString(personsSummary);
-		if (persons == null) {
-			out.writeInt(0);
-		} else {
-			out.writeInt(1);
-			out.writeTypedList(persons);
-		}
-		if (links == null) {
-			out.writeInt(0);
-		} else {
-			out.writeInt(1);
-			out.writeTypedList(links);
-		}
-	}
+    public void setAbstractText(String abstractText) {
+        this.abstractText = abstractText;
+    }
 
-	public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
-		public Event createFromParcel(Parcel in) {
-			return new Event(in);
-		}
+    public String getDescription() {
+        return description;
+    }
 
-		public Event[] newArray(int size) {
-			return new Event[size];
-		}
-	};
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	private Event(Parcel in) {
-		id = in.readLong();
-		day = Day.CREATOR.createFromParcel(in);
-		long time = in.readLong();
-		if (time != 0L) {
-			startTime = new Date(time);
-		}
-		time = in.readLong();
-		if (time != 0L) {
-			endTime = new Date(time);
-		}
-		roomName = in.readString();
-		slug = in.readString();
-		title = in.readString();
-		subTitle = in.readString();
-		track = Track.CREATOR.createFromParcel(in);
-		abstractText = in.readString();
-		description = in.readString();
-		personsSummary = in.readString();
-		if (in.readInt() == 1) {
-			persons = in.createTypedArrayList(Person.CREATOR);
-		}
-		if (in.readInt() == 1) {
-			links = in.createTypedArrayList(Link.CREATOR);
-		}
-	}
+    public String getPersonsSummary() {
+        if (personsSummary != null) {
+            return personsSummary;
+        }
+        if (persons != null) {
+            return TextUtils.join(", ", persons);
+        }
+        return "";
+    }
+
+    public void setPersonsSummary(String personsSummary) {
+        this.personsSummary = personsSummary;
+    }
+
+    public List<Person> getPersons() {
+        return persons;
+    }
+
+    public void setPersons(List<Person> persons) {
+        this.persons = persons;
+    }
+
+    public List<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<Link> links) {
+        this.links = links;
+    }
+
+    @Override
+    public String toString() {
+        return title;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        Event other = (Event) obj;
+        return id == other.id;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeLong(id);
+        day.writeToParcel(out, flags);
+        out.writeLong((startTime == null) ? 0L : startTime.getTime());
+        out.writeLong((endTime == null) ? 0L : endTime.getTime());
+        out.writeString(roomName);
+        out.writeString(slug);
+        out.writeString(title);
+        out.writeString(subTitle);
+        track.writeToParcel(out, flags);
+        out.writeString(abstractText);
+        out.writeString(description);
+        out.writeString(personsSummary);
+        if (persons == null) {
+            out.writeInt(0);
+        } else {
+            out.writeInt(1);
+            out.writeTypedList(persons);
+        }
+        if (links == null) {
+            out.writeInt(0);
+        } else {
+            out.writeInt(1);
+            out.writeTypedList(links);
+        }
+    }
+
+    public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
+        public Event createFromParcel(Parcel in) {
+            return new Event(in);
+        }
+
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
+    };
+
+    private Event(Parcel in) {
+        id = in.readLong();
+        day = Day.CREATOR.createFromParcel(in);
+        long time = in.readLong();
+        if (time != 0L) {
+            startTime = new Date(time);
+        }
+        time = in.readLong();
+        if (time != 0L) {
+            endTime = new Date(time);
+        }
+        roomName = in.readString();
+        slug = in.readString();
+        title = in.readString();
+        subTitle = in.readString();
+        track = Track.CREATOR.createFromParcel(in);
+        abstractText = in.readString();
+        description = in.readString();
+        personsSummary = in.readString();
+        if (in.readInt() == 1) {
+            persons = in.createTypedArrayList(Person.CREATOR);
+        }
+        if (in.readInt() == 1) {
+            links = in.createTypedArrayList(Link.CREATOR);
+        }
+    }
 }

@@ -1,15 +1,14 @@
 package org.toulibre.cdl.model;
 
+import org.toulibre.cdl.R;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.StringRes;
 
-import org.toulibre.cdl.R;
-
 public class Track implements Parcelable {
 
 	public enum Type {
-		keynote(R.string.keynote),
 		conference(R.string.conference),
 		atelier(R.string.atelier);
 

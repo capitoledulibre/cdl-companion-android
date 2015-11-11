@@ -1,84 +1,87 @@
 package org.toulibre.cdl.model;
 
 import org.toulibre.cdl.api.Urls;
-import org.toulibre.cdl.db.DatabaseManager;
-import org.toulibre.cdl.utils.StringUtils;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Person implements Parcelable {
 
-	private long id;
-	private String name;
+    private long id;
 
-	public Person() {
-	}
+    private String name;
 
-	public long getId() {
-		return id;
-	}
+    public Person() {
+    }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getUrl() {
-		return Urls.getPerson(StringUtils.toSlug(name), DatabaseManager.getInstance().getYear());
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Override
-	public String toString() {
-		return name;
-	}
+    public String getUrl() {
+        return Urls.getPerson(id);
+    }
 
-	@Override
-	public int hashCode() {
-		return (int) (id ^ (id >>> 32));
-	}
+    @Override
+    public String toString() {
+        return name;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Person other = (Person) obj;
-		return (id == other.id);
-	}
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Person other = (Person) obj;
+        return (id == other.id);
+    }
 
-	@Override
-	public void writeToParcel(Parcel out, int flags) {
-		out.writeLong(id);
-		out.writeString(name);
-	}
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
-	public static final Parcelable.Creator<Person> CREATOR = new Parcelable.Creator<Person>() {
-		public Person createFromParcel(Parcel in) {
-			return new Person(in);
-		}
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeLong(id);
+        out.writeString(name);
+    }
 
-		public Person[] newArray(int size) {
-			return new Person[size];
-		}
-	};
+    public static final Parcelable.Creator<Person> CREATOR = new Parcelable.Creator<Person>() {
+        public Person createFromParcel(Parcel in) {
+            return new Person(in);
+        }
 
-	private Person(Parcel in) {
-		id = in.readLong();
-		name = in.readString();
-	}
+        public Person[] newArray(int size) {
+            return new Person[size];
+        }
+    };
+
+    private Person(Parcel in) {
+        id = in.readLong();
+        name = in.readString();
+    }
 }

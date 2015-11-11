@@ -5,7 +5,6 @@ import org.toulibre.cdl.activities.PersonInfoActivity;
 import org.toulibre.cdl.db.DatabaseManager;
 import org.toulibre.cdl.loaders.BookmarkStatusLoader;
 import org.toulibre.cdl.loaders.LocalCacheLoader;
-import org.toulibre.cdl.model.Building;
 import org.toulibre.cdl.model.Event;
 import org.toulibre.cdl.model.Link;
 import org.toulibre.cdl.model.Person;
@@ -139,7 +138,7 @@ public class EventDetailsFragment extends Fragment {
 		((TextView) view.findViewById(R.id.time)).setText(text);
 		final String roomName = event.getRoomName();
 		TextView roomTextView = (TextView) view.findViewById(R.id.room);
-		Spannable roomText = new SpannableString(String.format("%1$s (Building %2$s)", roomName, Building.fromRoomName(roomName)));
+		Spannable roomText = new SpannableString(roomName);
 		roomTextView.setText(roomText);
 
 		textView = (TextView) view.findViewById(R.id.abstract_text);
