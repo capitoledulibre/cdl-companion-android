@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Main parser for FOSDEM schedule data in pentabarf XML format.
+ * Main parser for CDL schedule data in pentabarf XML format.
  *
  * @author Christophe Beyls
  */
@@ -27,7 +27,7 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
 
     private final DateFormat DATE_FORMAT = DateUtils.withFrenchTimeZone(new SimpleDateFormat("yyyy-MM-dd", Locale.US));
 
-    // Calendar used to compute the events time, according to Belgium timezone
+    // Calendar used to compute the events time, according to French timezone
     private final Calendar calendar = Calendar.getInstance(DateUtils.getFrenchTimeZone(), Locale.US);
 
     private Day currentDay;

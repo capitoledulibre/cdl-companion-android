@@ -55,7 +55,7 @@
 
                 <category android:name="android.intent.category.DEFAULT"/>
 
-                <data android:mimeType="application/be.digitalia.fosdem"/>
+                <data android:mimeType="application/org.toulibre.cdl"/>
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
