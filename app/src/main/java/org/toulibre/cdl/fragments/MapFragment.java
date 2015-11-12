@@ -17,9 +17,9 @@ import java.util.Locale;
 
 public class MapFragment extends Fragment {
 
-    private static final double DESTINATION_LATITUDE = 43.6022058;
+    private static final double DESTINATION_LATITUDE = 43.602458;
 
-    private static final double DESTINATION_LONGITUDE = 1.4530564;
+    private static final double DESTINATION_LONGITUDE = 1.4557992;
 
     private static final String DESTINATION_NAME = "ENSEEIHT";
 
