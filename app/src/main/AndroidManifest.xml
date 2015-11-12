@@ -105,9 +105,6 @@
             android:name=".providers.SearchSuggestionProvider"
             android:authorities="org.toulibre.cdl.search"
             android:exported="true"/>
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="7826122d19d8fbe241d1d771f84d07700dad4371" />
     </application>
 
 </manifest>
