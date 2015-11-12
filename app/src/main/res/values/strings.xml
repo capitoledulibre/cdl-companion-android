@@ -111,7 +111,7 @@
     <string name="about">À propos</string>
     <string name="about_text">Programmé par <a href="http://www.digitalia.be/">Christophe Beyls</a> et modifié par <a href="https://stackoverflow.com/users/104117/valentin-rocher">Valentin Rocher</a>.
 \n
-\nAuthorisé sous licence Apache, version 2.0. Source disponible sur <a href="https://github.com/toulibre/fosdem-companion-android">GitHub</a>.
+\nAuthorisé sous licence Apache, version 2.0. Source disponible sur <a href="https://github.com/toulibre/cdl-companion-android">GitHub</a>.
 \n
 \n<small>Cette application utilise les librairies suivantes:
 \n- <a href="http://developer.android.com/tools/support-library/">Android Support Library</a><i> par The Android Open Source Project</i>\n- <a href="http://viewpagerindicator.com/">ViewPagerIndicator</a><i> par Jake Wharton</i>\n- <a href="https://github.com/chrisbanes/PhotoView">PhotoView</a><i> par Chris Banes</i></small></string>

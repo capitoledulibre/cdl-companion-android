@@ -83,7 +83,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * Transforms a name to a slug identifier to be used in a FOSDEM URL.
+	 * Transforms a name to a slug identifier to be used in a CDL URL.
 	 * 
 	 * @param source
 	 * @return
