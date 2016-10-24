@@ -1,9 +1,5 @@
 package org.toulibre.cdl.fragments;
 
-import com.example.android.common.view.SlidingTabLayout;
-
-import org.toulibre.cdl.R;
-
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,9 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.toulibre.cdl.R;
 import org.toulibre.cdl.widgets.SlidingTabLayout;
-
-import be.digitalia.fosdem.R;
 
 public class LiveFragment extends Fragment {
 

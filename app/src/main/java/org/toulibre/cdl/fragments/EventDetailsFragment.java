@@ -1,16 +1,5 @@
 package org.toulibre.cdl.fragments;
 
-import org.toulibre.cdl.R;
-import org.toulibre.cdl.activities.PersonInfoActivity;
-import org.toulibre.cdl.db.DatabaseManager;
-import org.toulibre.cdl.loaders.BookmarkStatusLoader;
-import org.toulibre.cdl.loaders.LocalCacheLoader;
-import org.toulibre.cdl.model.Event;
-import org.toulibre.cdl.model.Link;
-import org.toulibre.cdl.model.Person;
-import org.toulibre.cdl.utils.DateUtils;
-import org.toulibre.cdl.utils.StringUtils;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -42,6 +31,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.toulibre.cdl.R;
+import org.toulibre.cdl.activities.PersonInfoActivity;
+import org.toulibre.cdl.db.DatabaseManager;
+import org.toulibre.cdl.loaders.BookmarkStatusLoader;
+import org.toulibre.cdl.loaders.LocalCacheLoader;
+import org.toulibre.cdl.model.Event;
+import org.toulibre.cdl.model.Link;
+import org.toulibre.cdl.model.Person;
+import org.toulibre.cdl.utils.DateUtils;
+import org.toulibre.cdl.utils.StringUtils;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -131,7 +131,7 @@ public class EventDetailsFragment extends Fragment {
 		((TextView) view.findViewById(R.id.track)).setText(event.getTrack().getName());
 		Date startTime = event.getStartTime();
 		Date endTime = event.getEndTime();
-		DateFormat timeDateFormat = DateUtils.getTimeDateFormat(getActivity());
+		DateFormat timeDateFormat = DateUtils.getTimeDateFormat();
 		text = String.format("%1$s, %2$s ― %3$s",
 				event.getDay().toString(),
 				(startTime != null) ? timeDateFormat.format(startTime) : "?",
