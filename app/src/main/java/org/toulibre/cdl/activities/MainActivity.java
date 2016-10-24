@@ -1,15 +1,5 @@
 package org.toulibre.cdl.activities;
 
-import org.toulibre.cdl.R;
-import org.toulibre.cdl.api.Api;
-import org.toulibre.cdl.db.DatabaseManager;
-import org.toulibre.cdl.fragments.BookmarksListFragment;
-import org.toulibre.cdl.fragments.LiveFragment;
-import org.toulibre.cdl.fragments.MapFragment;
-import org.toulibre.cdl.fragments.PersonsListFragment;
-import org.toulibre.cdl.fragments.TracksFragment;
-import org.toulibre.cdl.widgets.AdapterLinearLayout;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -20,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -28,6 +17,8 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -35,18 +26,22 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.content.SharedPreferencesCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,33 +53,43 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
+import org.toulibre.cdl.BuildConfig;
+import org.toulibre.cdl.R;
+import org.toulibre.cdl.api.Api;
+import org.toulibre.cdl.db.DatabaseManager;
+import org.toulibre.cdl.fragments.BookmarksListFragment;
+import org.toulibre.cdl.fragments.LiveFragment;
+import org.toulibre.cdl.fragments.MapFragment;
+import org.toulibre.cdl.fragments.PersonsListFragment;
+import org.toulibre.cdl.fragments.TracksFragment;
+import org.toulibre.cdl.widgets.AdapterLinearLayout;
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
  *
  * @author Christophe Beyls
  */
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity implements Handler.Callback {
 
 	private enum Section {
-		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true),
-		BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks, R.drawable.ic_bookmark_grey600_24dp, false),
-		LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_play_circle_outline_grey600_24dp, false),
-		SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_people_grey600_24dp, false),
-		MAP(MapFragment.class, R.string.menu_map, R.drawable.ic_map_grey600_24dp, false);
+		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true, true),
+		BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks, R.drawable.ic_bookmark_grey600_24dp, false, false),
+		LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_play_circle_outline_grey600_24dp, true, false),
+		SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_people_grey600_24dp, false, false),
+		MAP(MapFragment.class, R.string.menu_map, R.drawable.ic_map_grey600_24dp, false, false);
 
 		private final String fragmentClassName;
 		private final int titleResId;
 		private final int iconResId;
+		private final boolean extendsAppBar;
 		private final boolean keep;
 
-		private Section(Class<? extends Fragment> fragmentClass, int titleResId, int iconResId, boolean keep) {
+		Section(Class<? extends Fragment> fragmentClass, int titleResId, int iconResId,
+				boolean extendsAppBar, boolean keep) {
 			this.fragmentClassName = fragmentClass.getName();
 			this.titleResId = titleResId;
 			this.iconResId = iconResId;
+			this.extendsAppBar = extendsAppBar;
 			this.keep = keep;
 		}
 
@@ -102,24 +107,37 @@ public class MainActivity extends ActionBarActivity {
 			return iconResId;
 		}
 
+		public boolean extendsAppBar() {
+			return extendsAppBar;
+		}
+
 		public boolean shouldKeep() {
 			return keep;
 		}
 	}
 
-	private static final long DATABASE_VALIDITY_DURATION = 24L * 60L * 60L * 1000L; // 24h
-	private static final long DOWNLOAD_REMINDER_SNOOZE_DURATION = 24L * 60L * 60L * 1000L; // 24h
+	static final int SELECT_MENU_SECTION_WHAT = 1;
+	static final int SELECT_MENU_FOOTER_WHAT = 2;
+
+	static final long MENU_ACTION_DELAY = 400L;
+
+	private static final long DATABASE_VALIDITY_DURATION = DateUtils.DAY_IN_MILLIS;
+	private static final long DOWNLOAD_REMINDER_SNOOZE_DURATION = DateUtils.DAY_IN_MILLIS;
 	private static final String PREF_LAST_DOWNLOAD_REMINDER_TIME = "last_download_reminder_time";
 	private static final String STATE_CURRENT_SECTION = "current_section";
 
-	private static final DateFormat LAST_UPDATE_DATE_FORMAT = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault());
+	private static final String LAST_UPDATE_DATE_FORMAT = "d MMM yyyy kk:mm:ss";
 
-	private Section currentSection;
 
-	private ProgressBar progressBar;
-	private DrawerLayout drawerLayout;
+	Handler handler;
+	private Toolbar toolbar;
+	ProgressBar progressBar;
+
+	// Main menu
+	Section currentSection;
+	DrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
-	private View mainMenu;
+	View mainMenu;
 	private TextView lastUpdateTextView;
 	private MainMenuAdapter menuAdapter;
 
@@ -176,7 +194,9 @@ public class MainActivity extends ActionBarActivity {
 		@NonNull
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			return new AlertDialog.Builder(getActivity()).setTitle(R.string.download_reminder_title).setMessage(R.string.download_reminder_message)
+			return new AlertDialog.Builder(getActivity())
+					.setTitle(R.string.download_reminder_title)
+					.setMessage(R.string.download_reminder_message)
 					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 
 						@Override
@@ -184,7 +204,8 @@ public class MainActivity extends ActionBarActivity {
 							((MainActivity) getActivity()).startDownloadSchedule();
 						}
 
-					}).setNegativeButton(android.R.string.cancel, null).create();
+					}).setNegativeButton(android.R.string.cancel, null)
+					.create();
 		}
 	}
 
@@ -192,28 +213,24 @@ public class MainActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+
+		handler = new Handler(this);
+
+		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
 
 		progressBar = (ProgressBar) findViewById(R.id.progress);
 
 		// Setup drawer layout
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		drawerLayout.setDrawerShadow(getResources().getDrawable(R.drawable.drawer_shadow), Gravity.LEFT);
+		drawerLayout.setDrawerShadow(ContextCompat.getDrawable(this, R.drawable.drawer_shadow), GravityCompat.START);
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.main_menu, R.string.close_menu) {
 
 			@Override
 			public void onDrawerOpened(View drawerView) {
-				updateActionBar();
-				supportInvalidateOptionsMenu();
 				// Make keypad navigation easier
 				mainMenu.requestFocus();
-			}
-
-			@Override
-			public void onDrawerClosed(View drawerView) {
-				updateActionBar();
-				supportInvalidateOptionsMenu();
 			}
 		};
 		drawerToggle.setDrawerIndicatorEnabled(true);
@@ -262,26 +279,24 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	private void updateActionBar() {
-		if (drawerLayout.isDrawerOpen(mainMenu)) {
-			getSupportActionBar().setTitle(null);
-		} else {
-			getSupportActionBar().setTitle(currentSection.getTitleResId());
+		getSupportActionBar().setTitle(currentSection.getTitleResId());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			toolbar.setElevation(currentSection.extendsAppBar()
+					? 0f : getResources().getDimension(R.dimen.toolbar_elevation));
 		}
 	}
 
-	private void updateLastUpdateTime() {
+	void updateLastUpdateTime() {
 		long lastUpdateTime = DatabaseManager.getInstance().getLastUpdateTime();
 		lastUpdateTextView.setText(getString(R.string.last_update,
-				(lastUpdateTime == -1L) ? getString(R.string.never) : LAST_UPDATE_DATE_FORMAT.format(new Date(lastUpdateTime))));
+				(lastUpdateTime == -1L)
+						? getString(R.string.never)
+						: android.text.format.DateFormat.format(LAST_UPDATE_DATE_FORMAT, lastUpdateTime)));
 	}
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-
-		if (drawerLayout.isDrawerOpen(mainMenu)) {
-			updateActionBar();
-		}
 		drawerToggle.syncState();
 	}
 
@@ -296,6 +311,8 @@ public class MainActivity extends ActionBarActivity {
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
+		// Ensure no fragment transaction attempt will occur after onSaveInstanceState()
+		handler.removeCallbacksAndMessages(null);
 		super.onSaveInstanceState(outState);
 		outState.putInt(STATE_CURRENT_SECTION, currentSection.ordinal());
 	}
@@ -319,7 +336,9 @@ public class MainActivity extends ActionBarActivity {
 			SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
 			time = prefs.getLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, -1L);
 			if ((time == -1L) || (time < (now - DOWNLOAD_REMINDER_SNOOZE_DURATION))) {
-				prefs.edit().putLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, now).commit();
+				SharedPreferencesCompat.EditorCompat.getInstance().apply(
+						prefs.edit().putLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, now)
+				);
 
 				FragmentManager fm = getSupportFragmentManager();
 				if (fm.findFragmentByTag("download_reminder") == null) {
@@ -348,7 +367,6 @@ public class MainActivity extends ActionBarActivity {
 		LocalBroadcastManager.getInstance(this).unregisterReceiver(scheduleRefreshedReceiver);
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
@@ -367,22 +385,6 @@ public class MainActivity extends ActionBarActivity {
 		}
 
 		return true;
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		// Hide & disable primary (contextual) action items when the main menu is opened
-		if (drawerLayout.isDrawerOpen(mainMenu)) {
-			final int size = menu.size();
-			for (int i = 0; i < size; ++i) {
-				MenuItem item = menu.getItem(i);
-				if ((item.getOrder() & 0xFFFF0000) == 0) {
-					item.setVisible(false).setEnabled(false);
-				}
-			}
-		}
-
-		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -438,23 +440,6 @@ public class MainActivity extends ActionBarActivity {
 
 	// MAIN MENU
 
-	private final View.OnClickListener menuFooterClickListener = new View.OnClickListener() {
-
-		@Override
-		public void onClick(View view) {
-			switch (view.getId()) {
-				case R.id.settings:
-					startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-					overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out);
-					break;
-				case R.id.about:
-					new AboutDialogFragment().show(getSupportFragmentManager(), "about");
-					break;
-			}
-			drawerLayout.closeDrawer(mainMenu);
-		}
-	};
-
 	private class MainMenuAdapter extends AdapterLinearLayout.Adapter<Section> {
 
 		private final Section[] sections = Section.values();
@@ -494,69 +479,101 @@ public class MainActivity extends ActionBarActivity {
 
 			TextView tv = (TextView) convertView.findViewById(R.id.section_text);
 			SpannableString sectionTitle = new SpannableString(getString(section.getTitleResId()));
-			Drawable sectionIcon = getResources().getDrawable(section.getIconResId());
+			Drawable sectionIcon = ContextCompat.getDrawable(MainActivity.this, section.getIconResId());
 			if (section == currentSection) {
 				// Special color for the current section
-				//sectionTitle.setSpan(new StyleSpan(Typeface.BOLD), 0, sectionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				sectionTitle.setSpan(new ForegroundColorSpan(currentSectionForegroundColor), 0, sectionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				// We need to mutate the drawable before applying the ColorFilter, or else all the similar drawable instances will be tinted.
 				sectionIcon.mutate().setColorFilter(currentSectionForegroundColor, PorterDuff.Mode.SRC_IN);
 			}
 			tv.setText(sectionTitle);
-			tv.setCompoundDrawablesWithIntrinsicBounds(sectionIcon, null, null, null);
+			TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(tv, sectionIcon, null, null, null);
 
 			return convertView;
 		}
 	}
 
-	private final View.OnClickListener sectionClickListener = new View.OnClickListener() {
+	final View.OnClickListener sectionClickListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
-			Section section = menuAdapter.getItem(((ViewGroup) view.getParent()).indexOfChild(view));
-			if (section != currentSection) {
-				// Switch to new section
-				FragmentManager fm = getSupportFragmentManager();
-				FragmentTransaction ft = fm.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-				Fragment f = fm.findFragmentById(R.id.content);
-				if (f != null) {
-					if (currentSection.shouldKeep()) {
-						ft.detach(f);
-					} else {
-						ft.remove(f);
-					}
-				}
-				String fragmentClassName = section.getFragmentClassName();
-				if (section.shouldKeep() && ((f = fm.findFragmentByTag(fragmentClassName)) != null)) {
-					ft.attach(f);
-				} else {
-					f = Fragment.instantiate(MainActivity.this, fragmentClassName);
-					ft.add(R.id.content, f, fragmentClassName);
-				}
-				ft.commit();
-
-				currentSection = section;
-				menuAdapter.notifyDataSetChanged();
-			}
-
+			int sectionIndex = ((ViewGroup) view.getParent()).indexOfChild(view);
+			// Cancel pending section selection, if any
+			handler.removeMessages(SELECT_MENU_SECTION_WHAT);
+			handler.sendMessageDelayed(handler.obtainMessage(SELECT_MENU_SECTION_WHAT, sectionIndex, 0), MENU_ACTION_DELAY);
 			drawerLayout.closeDrawer(mainMenu);
 		}
 	};
+
+	private void selectMenuSection(int position) {
+		Section section = menuAdapter.getItem(position);
+		if (section != currentSection) {
+			// Switch to new section
+			FragmentManager fm = getSupportFragmentManager();
+			FragmentTransaction ft = fm.beginTransaction();
+			Fragment f = fm.findFragmentById(R.id.content);
+			if (f != null) {
+				if (currentSection.shouldKeep()) {
+					ft.detach(f);
+				} else {
+					ft.remove(f);
+				}
+			}
+			String fragmentClassName = section.getFragmentClassName();
+			if (section.shouldKeep() && ((f = fm.findFragmentByTag(fragmentClassName)) != null)) {
+				ft.attach(f);
+			} else {
+				f = Fragment.instantiate(MainActivity.this, fragmentClassName);
+				ft.add(R.id.content, f, fragmentClassName);
+			}
+			ft.commit();
+
+			currentSection = section;
+			updateActionBar();
+			menuAdapter.notifyDataSetChanged();
+		}
+	}
+
+	private final View.OnClickListener menuFooterClickListener = new View.OnClickListener() {
+
+		@Override
+		public void onClick(View view) {
+			handler.sendMessageDelayed(handler.obtainMessage(SELECT_MENU_FOOTER_WHAT, view.getId(), 0), MENU_ACTION_DELAY);
+			drawerLayout.closeDrawer(mainMenu);
+		}
+	};
+
+	private void selectMenuFooter(int id) {
+		switch (id) {
+			case R.id.settings:
+				startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+				overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out);
+				break;
+			case R.id.about:
+				new AboutDialogFragment().show(getSupportFragmentManager(), "about");
+				break;
+		}
+	}
+
+	@Override
+	public boolean handleMessage(Message message) {
+		switch (message.what) {
+			case SELECT_MENU_SECTION_WHAT:
+				selectMenuSection(message.arg1);
+				return true;
+			case SELECT_MENU_FOOTER_WHAT:
+				selectMenuFooter(message.arg1);
+				return true;
+		}
+		return false;
+	}
 
 	public static class AboutDialogFragment extends DialogFragment {
 
 		@NonNull
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			Context context = getActivity();
-			String title;
-			try {
-				String versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
-				title = String.format("%1$s %2$s", getString(R.string.app_name), versionName);
-			} catch (NameNotFoundException e) {
-				title = getString(R.string.app_name);
-			}
-
-			return new AlertDialog.Builder(context)
+			String title = String.format("%1$s %2$s", getString(R.string.app_name), BuildConfig.VERSION_NAME);
+			return new AlertDialog.Builder(getActivity())
 					.setTitle(title)
 					.setIcon(R.mipmap.ic_launcher)
 					.setMessage(getResources().getText(R.string.about_text))

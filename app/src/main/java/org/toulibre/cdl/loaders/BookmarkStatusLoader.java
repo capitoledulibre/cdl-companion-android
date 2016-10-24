@@ -1,14 +1,15 @@
 package org.toulibre.cdl.loaders;
 
-import org.toulibre.cdl.db.DatabaseManager;
-import org.toulibre.cdl.model.Event;
-import org.toulibre.cdl.utils.ArrayUtils;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
+
+import org.toulibre.cdl.db.DatabaseManager;
+import org.toulibre.cdl.model.Event;
+import org.toulibre.cdl.utils.ArrayUtils;
 
 /**
  * This loader retrieves the bookmark status of an event from the database, then updates it in real time by listening to broadcasts.
@@ -18,7 +19,7 @@ import android.support.v4.content.LocalBroadcastManager;
  */
 public class BookmarkStatusLoader extends AsyncTaskLoader<Boolean> {
 
-	private final Event event;
+	final Event event;
 	private Boolean isBookmarked;
 
 	private final BroadcastReceiver addBookmarkReceiver = new BroadcastReceiver() {
@@ -51,7 +52,7 @@ public class BookmarkStatusLoader extends AsyncTaskLoader<Boolean> {
 		lbm.registerReceiver(removeBookmarksReceiver, new IntentFilter(DatabaseManager.ACTION_REMOVE_BOOKMARKS));
 	}
 
-	private void updateBookmark(Boolean result) {
+	void updateBookmark(Boolean result) {
 		if (isStarted()) {
 			cancelLoad();
 		}

@@ -19,7 +19,7 @@
 
     <application
         android:name=".CdlApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -27,7 +27,7 @@
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar.WindowDrawsSystemBarBackgrounds">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -84,7 +84,7 @@
             android:name=".activities.RoomImageDialogActivity"
             android:excludeFromRecents="true"
             android:taskAffinity=""
-            android:theme="@style/DialogTheme"/>
+            android:theme="@style/AlertDialogTheme"/>
         <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/settings"/>

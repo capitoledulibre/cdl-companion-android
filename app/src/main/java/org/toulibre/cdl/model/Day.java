@@ -85,7 +85,7 @@ public class Day implements Parcelable {
 		}
 	};
 
-	private Day(Parcel in) {
+	Day(Parcel in) {
 		index = in.readInt();
 		long time = in.readLong();
 		if (time != 0L) {

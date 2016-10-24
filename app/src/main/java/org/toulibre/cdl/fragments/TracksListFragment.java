@@ -1,12 +1,5 @@
 package org.toulibre.cdl.fragments;
 
-import org.toulibre.cdl.R;
-import org.toulibre.cdl.activities.TrackScheduleActivity;
-import org.toulibre.cdl.db.DatabaseManager;
-import org.toulibre.cdl.loaders.SimpleCursorLoader;
-import org.toulibre.cdl.model.Day;
-import org.toulibre.cdl.model.Track;
-
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -19,6 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.toulibre.cdl.R;
+import org.toulibre.cdl.activities.TrackScheduleActivity;
+import org.toulibre.cdl.db.DatabaseManager;
+import org.toulibre.cdl.loaders.SimpleCursorLoader;
+import org.toulibre.cdl.model.Day;
+import org.toulibre.cdl.model.Track;
 
 public class TracksListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
 
@@ -112,7 +112,7 @@ public class TracksListFragment extends SmoothListFragment implements LoaderCall
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View view = inflater.inflate(android.R.layout.simple_list_item_2, parent, false);
+			View view = inflater.inflate(R.layout.simple_list_item_2_material, parent, false);
 
 			ViewHolder holder = new ViewHolder();
 			holder.name = (TextView) view.findViewById(android.R.id.text1);
@@ -130,7 +130,7 @@ public class TracksListFragment extends SmoothListFragment implements LoaderCall
 			holder.type.setText(holder.track.getType().getNameResId());
 		}
 
-		private static class ViewHolder {
+		static class ViewHolder {
 			TextView name;
 			TextView type;
 			Track track;

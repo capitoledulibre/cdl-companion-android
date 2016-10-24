@@ -14,6 +14,7 @@ import android.widget.AlphabetIndexer;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
+
 import org.toulibre.cdl.R;
 import org.toulibre.cdl.activities.PersonInfoActivity;
 import org.toulibre.cdl.db.DatabaseManager;
@@ -102,7 +103,7 @@ public class PersonsListFragment extends SmoothListFragment implements LoaderCal
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+			View view = inflater.inflate(R.layout.simple_list_item_1_material, parent, false);
 
 			ViewHolder holder = new ViewHolder();
 			holder.textView = (TextView) view.findViewById(android.R.id.text1);
@@ -139,7 +140,7 @@ public class PersonsListFragment extends SmoothListFragment implements LoaderCal
 			return indexer.getSections();
 		}
 
-		private static class ViewHolder {
+		static class ViewHolder {
 			public TextView textView;
 			public Person person;
 		}

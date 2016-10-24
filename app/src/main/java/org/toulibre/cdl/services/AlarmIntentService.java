@@ -20,13 +20,16 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 
 /**
@@ -57,8 +60,9 @@ public class AlarmIntentService extends IntentService {
 	}
 
 	private PendingIntent getAlarmPendingIntent(long eventId) {
-		Intent intent = new Intent(this, AlarmReceiver.class).setAction(AlarmReceiver.ACTION_NOTIFY_EVENT).setData(
-				Uri.parse(String.valueOf(eventId)));
+		Intent intent = new Intent(this, AlarmReceiver.class)
+				.setAction(AlarmReceiver.ACTION_NOTIFY_EVENT)
+				.setData(Uri.parse(String.valueOf(eventId)));
 		return PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 	}
 
@@ -81,7 +85,7 @@ public class AlarmIntentService extends IntentService {
 							// Cancel pending alarms that where scheduled between now and delay, if any
 							alarmManager.cancel(pi);
 						} else {
-							alarmManager.set(AlarmManager.RTC_WAKEUP, notificationTime, pi);
+							setExactAlarm(alarmManager, AlarmManager.RTC_WAKEUP, notificationTime, pi);
 						}
 					}
 				} finally {
@@ -117,9 +121,9 @@ public class AlarmIntentService extends IntentService {
 				long startTime = intent.getLongExtra(DatabaseManager.EXTRA_EVENT_START_TIME, -1L);
 				// Only schedule future events. If they start before the delay, the alarm will go off immediately
 				if ((startTime == -1L) || (startTime < System.currentTimeMillis())) {
-					return;
+					break;
 				}
-				alarmManager.set(AlarmManager.RTC_WAKEUP, startTime - delay, getAlarmPendingIntent(eventId));
+				setExactAlarm(alarmManager, AlarmManager.RTC_WAKEUP, startTime - delay, getAlarmPendingIntent(eventId));
 
 				break;
 			}
@@ -174,7 +178,7 @@ public class AlarmIntentService extends IntentService {
 						bigText = spannableBigText;
 					}
 
-					int notificationColor = getResources().getColor(R.color.color_primary);
+					int notificationColor = ContextCompat.getColor(this, R.color.color_primary);
 
 					NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
 							.setSmallIcon(R.drawable.notif_icon)
@@ -229,10 +233,18 @@ public class AlarmIntentService extends IntentService {
 		}
 	}
 
+	private static void setExactAlarm(AlarmManager manager, int type, long triggerAtMillis, PendingIntent operation) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			manager.setExact(type, triggerAtMillis, operation);
+		} else {
+			manager.set(type, triggerAtMillis, operation);
+		}
+	}
+
 	private long getDelay() {
 		String delayString = PreferenceManager.getDefaultSharedPreferences(this).getString(
 				SettingsFragment.KEY_PREF_NOTIFICATIONS_DELAY, "0");
 		// Convert from minutes to milliseconds
-		return Long.parseLong(delayString) * 1000L * 60L;
+		return Long.parseLong(delayString) * DateUtils.MINUTE_IN_MILLIS;
 	}
 }

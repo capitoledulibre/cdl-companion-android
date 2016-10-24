@@ -4,14 +4,13 @@
     <!-- Main theme -->
 
     <style name="AppTheme" parent="Base.AppTheme">
-        <item name="android:alertDialogTheme">@style/AlertDialogTheme</item>
+        <!-- Workaround for AppCompat bug on API 21-22 -->
+        <item name="android:textColorLink">?android:attr/colorAccent</item>
     </style>
 
-    <style name="AlertDialogTheme" parent="android:Theme.Material.Light.Dialog.Alert">
-        <item name="android:colorPrimary">@color/color_primary</item>
-        <item name="android:colorPrimaryDark">@color/color_primary_dark</item>
-        <item name="android:colorAccent">@color/color_accent</item>
-        <item name="android:textColorLink">?android:attr/colorAccent</item>
+    <style name="AppTheme.NoActionBar.WindowDrawsSystemBarBackgrounds">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <!-- Styles -->

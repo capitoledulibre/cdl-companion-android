@@ -1,13 +1,5 @@
 package org.toulibre.cdl.fragments;
 
-import org.toulibre.cdl.R;
-import org.toulibre.cdl.activities.EventDetailsActivity;
-import org.toulibre.cdl.adapters.EventsAdapter;
-import org.toulibre.cdl.db.DatabaseManager;
-import org.toulibre.cdl.loaders.SimpleCursorLoader;
-import org.toulibre.cdl.model.Event;
-import org.toulibre.cdl.widgets.BookmarksMultiChoiceModeListener;
-
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,11 +8,22 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+
+import org.toulibre.cdl.R;
+import org.toulibre.cdl.activities.EventDetailsActivity;
+import org.toulibre.cdl.adapters.EventsAdapter;
+import org.toulibre.cdl.db.DatabaseManager;
+import org.toulibre.cdl.loaders.SimpleCursorLoader;
+import org.toulibre.cdl.model.Event;
+import org.toulibre.cdl.widgets.BookmarksMultiChoiceModeListener;
+
+import org.toulibre.cdl.adapters.BookmarksAdapter;
 
 /**
  * Bookmarks list, optionally filterable.
@@ -42,7 +45,7 @@ public class BookmarksListFragment extends SmoothListFragment implements LoaderC
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		adapter = new EventsAdapter(getActivity());
+		adapter = new BookmarksAdapter(getActivity());
 		setListAdapter(adapter);
 
 		upcomingOnly = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);
@@ -62,6 +65,14 @@ public class BookmarksListFragment extends SmoothListFragment implements LoaderC
 		setListShown(false);
 
 		getLoaderManager().initLoader(BOOKMARKS_LOADER_ID, null, this);
+	}
+
+	@Override
+	public void onDestroyView() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			BookmarksMultiChoiceModeListener.unregister(getListView());
+		}
+		super.onDestroyView();
 	}
 
 	@Override
@@ -94,7 +105,9 @@ public class BookmarksListFragment extends SmoothListFragment implements LoaderC
 			case R.id.upcoming_only:
 				upcomingOnly = !upcomingOnly;
 				updateOptionsMenu();
-				getActivity().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly).commit();
+				SharedPreferencesCompat.EditorCompat.getInstance().apply(
+						getActivity().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly)
+				);
 				getLoaderManager().restartLoader(BOOKMARKS_LOADER_ID, null, this);
 				return true;
 		}

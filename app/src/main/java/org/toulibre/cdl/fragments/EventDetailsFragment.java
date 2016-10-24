@@ -57,12 +57,12 @@ public class EventDetailsFragment extends Fragment {
 		ImageView getActionButton();
 	}
 
-	private static class EventDetails {
+	static class EventDetails {
 		List<Person> persons;
 		List<Link> links;
 	}
 
-	private static class ViewHolder {
+	static class ViewHolder {
 		LayoutInflater inflater;
 		TextView personsTextView;
 		ViewGroup linksContainer;
@@ -73,12 +73,10 @@ public class EventDetailsFragment extends Fragment {
 
 	private static final String ARG_EVENT = "event";
 
-	private static final DateFormat TIME_DATE_FORMAT = DateUtils.getTimeDateFormat();
-
-	private Event event;
-	private int personsCount = 1;
-	private Boolean isBookmarked;
-	private ViewHolder holder;
+	Event event;
+	int personsCount = 1;
+	Boolean isBookmarked;
+	ViewHolder holder;
 
 	private MenuItem bookmarkMenuItem;
 	private ImageView actionButton;
@@ -133,8 +131,11 @@ public class EventDetailsFragment extends Fragment {
 		((TextView) view.findViewById(R.id.track)).setText(event.getTrack().getName());
 		Date startTime = event.getStartTime();
 		Date endTime = event.getEndTime();
-		text = String.format("%1$s, %2$s ― %3$s", event.getDay().toString(), (startTime != null) ? TIME_DATE_FORMAT.format(startTime) : "?",
-				(endTime != null) ? TIME_DATE_FORMAT.format(endTime) : "?");
+		DateFormat timeDateFormat = DateUtils.getTimeDateFormat(getActivity());
+		text = String.format("%1$s, %2$s ― %3$s",
+				event.getDay().toString(),
+				(startTime != null) ? timeDateFormat.format(startTime) : "?",
+				(endTime != null) ? timeDateFormat.format(endTime) : "?");
 		((TextView) view.findViewById(R.id.time)).setText(text);
 		final String roomName = event.getRoomName();
 		TextView roomTextView = (TextView) view.findViewById(R.id.room);
@@ -223,7 +224,7 @@ public class EventDetailsFragment extends Fragment {
 				.createChooserIntent();
 	}
 
-	private void updateOptionsMenu() {
+	void updateOptionsMenu() {
 		if (actionButton != null) {
 			// Action Button is used as bookmark button
 

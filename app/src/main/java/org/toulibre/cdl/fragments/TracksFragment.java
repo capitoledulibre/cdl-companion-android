@@ -1,7 +1,5 @@
 package org.toulibre.cdl.fragments;
 
-import java.util.List;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,37 +12,39 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import org.toulibre.cdl.R;
 import org.toulibre.cdl.db.DatabaseManager;
 import org.toulibre.cdl.loaders.GlobalCacheLoader;
 import org.toulibre.cdl.model.Day;
+import org.toulibre.cdl.widgets.SlidingTabLayout;
 
-import com.example.android.common.view.SlidingTabLayout;
+import java.util.List;
 
 public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day>> {
 
-	private static class ViewHolder {
+	static class ViewHolder {
 		View contentView;
 		View emptyView;
 		ViewPager pager;
 		SlidingTabLayout slidingTabs;
+		DaysAdapter daysAdapter;
 	}
 
 	private static final int DAYS_LOADER_ID = 1;
 	private static final String PREF_CURRENT_PAGE = "tracks_current_page";
 
-	private DaysAdapter daysAdapter;
 	private ViewHolder holder;
 	private int savedCurrentPage = -1;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		daysAdapter = new DaysAdapter(getChildFragmentManager());
 
 		if (savedInstanceState == null) {
 			// Restore the current page from preferences
@@ -61,6 +61,7 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		holder.emptyView = view.findViewById(android.R.id.empty);
 		holder.pager = (ViewPager) view.findViewById(R.id.pager);
 		holder.slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+		holder.daysAdapter = new DaysAdapter(getChildFragmentManager());
 
 		return view;
 	}
@@ -85,7 +86,9 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		final int page = holder.pager.getCurrentItem();
 		SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
 		if (prefs.getInt(PREF_CURRENT_PAGE, -1) != page) {
-			prefs.edit().putInt(PREF_CURRENT_PAGE, page).commit();
+			SharedPreferencesCompat.EditorCompat.getInstance().apply(
+					prefs.edit().putInt(PREF_CURRENT_PAGE, page)
+			);
 		}
 	}
 
@@ -130,20 +133,19 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 
 	@Override
 	public void onLoadFinished(Loader<List<Day>> loader, List<Day> data) {
-		daysAdapter.setDays(data);
+		holder.daysAdapter.setDays(data);
 
-		final int totalPages = daysAdapter.getCount();
+		final int totalPages = holder.daysAdapter.getCount();
 		if (totalPages == 0) {
 			holder.contentView.setVisibility(View.GONE);
 			holder.emptyView.setVisibility(View.VISIBLE);
-			holder.pager.setOnPageChangeListener(null);
 		} else {
 			holder.contentView.setVisibility(View.VISIBLE);
 			holder.emptyView.setVisibility(View.GONE);
 			if (holder.pager.getAdapter() == null) {
-				holder.pager.setAdapter(daysAdapter);
+				holder.pager.setAdapter(holder.daysAdapter);
+				holder.slidingTabs.setViewPager(holder.pager);
 			}
-			holder.slidingTabs.setViewPager(holder.pager);
 			if (savedCurrentPage != -1) {
 				holder.pager.setCurrentItem(Math.min(savedCurrentPage, totalPages - 1), false);
 				savedCurrentPage = -1;
@@ -186,12 +188,11 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		}
 
 		@Override
-		public void setPrimaryItem(ViewGroup container, int position, Object object) {
-			super.setPrimaryItem(container, position, object);
-			// Hack to allow the non-primary fragments to start properly
-			if (object != null) {
-				((Fragment) object).setUserVisibleHint(false);
-			}
+		public Object instantiateItem(ViewGroup container, int position) {
+			// Allow the non-primary fragments to start as soon as they are visible
+			Fragment f = (Fragment) super.instantiateItem(container, position);
+			f.setUserVisibleHint(true);
+			return f;
 		}
 	}
 }
