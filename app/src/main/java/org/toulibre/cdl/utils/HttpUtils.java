@@ -1,9 +1,10 @@
 package org.toulibre.cdl.utils;
 
 import android.content.Context;
-import android.support.v4.BuildConfig;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
+
+import org.toulibre.cdl.BuildConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +37,7 @@ public class HttpUtils {
 
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         //noinspection ConstantConditions
-        loggingInterceptor.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
+        loggingInterceptor.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.HEADERS : HttpLoggingInterceptor.Level.NONE);
 		OkHttpClient client = new OkHttpClient.Builder()
 				.readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
 				.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
