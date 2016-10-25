@@ -1,12 +1,16 @@
 package org.toulibre.cdl;
 
+import android.app.Application;
+import android.preference.PreferenceManager;
+
 import com.crashlytics.android.Crashlytics;
-import io.fabric.sdk.android.Fabric;
+import com.facebook.stetho.Stetho;
+import com.squareup.leakcanary.LeakCanary;
+
 import org.toulibre.cdl.alarms.FosdemAlarmManager;
 import org.toulibre.cdl.db.DatabaseManager;
 
-import android.app.Application;
-import android.preference.PreferenceManager;
+import io.fabric.sdk.android.Fabric;
 
 public class CdlApplication extends Application {
 
@@ -14,6 +18,10 @@ public class CdlApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		Fabric.with(this, new Crashlytics());
+		Stetho.initializeWithDefaults(this);
+		if (!LeakCanary.isInAnalyzerProcess(this)) {
+			LeakCanary.install(this);
+		}
 
 		DatabaseManager.init(this);
 		// Initialize settings
