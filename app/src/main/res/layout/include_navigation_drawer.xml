@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.toulibre.cdl.widgets.ScrimInsetsFrameLayout
-    android:id="@+id/main_menu"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<org.toulibre.cdl.widgets.ScrimInsetsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_menu"
     android:layout_width="@dimen/main_menu_width"
     android:layout_height="match_parent"
     android:layout_gravity="start"
@@ -26,27 +25,27 @@
                 android:contentDescription="@string/app_name"
                 android:padding="@dimen/main_menu_padding"
                 android:scaleType="center"
-                android:src="@drawable/fosdem_title"/>
+                android:src="@drawable/cdl_title" />
 
             <org.toulibre.cdl.widgets.AdapterLinearLayout
                 android:id="@+id/sections"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <View
                 style="@style/SeparatorLine"
                 android:layout_marginBottom="8dp"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="8dp" />
 
             <TextView
                 android:id="@+id/settings"
                 style="@style/MainMenuItem"
-                android:text="@string/settings"/>
+                android:text="@string/settings" />
 
             <TextView
                 android:id="@+id/about"
                 style="@style/MainMenuItem"
-                android:text="@string/about"/>
+                android:text="@string/about" />
 
         </LinearLayout>
 
@@ -63,6 +62,6 @@
         android:gravity="center"
         android:lines="1"
         android:padding="4dp"
-        tools:text="DB last updated: 1 jan. 2015 13:37:00"/>
+        tools:text="DB last updated: 1 jan. 2015 13:37:00" />
 
 </org.toulibre.cdl.widgets.ScrimInsetsFrameLayout>
