@@ -21,6 +21,8 @@ import org.toulibre.cdl.db.DatabaseManager;
 import org.toulibre.cdl.loaders.SimpleCursorLoader;
 import org.toulibre.cdl.model.Event;
 import org.toulibre.cdl.model.Person;
+import org.toulibre.cdl.utils.WebUtils;
+import org.toulibre.cdl.utils.customtabs.CustomTabsHelperFragment;
 
 public class PersonInfoListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
 
@@ -56,8 +58,7 @@ public class PersonInfoListFragment extends SmoothListFragment implements Loader
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.more_info:
-				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(person.getUrl()));
-				startActivity(intent);
+				WebUtils.openWebLink(getActivity(), Uri.parse(person.getUrl()));
 				return true;
 		}
 		return false;
@@ -82,6 +83,8 @@ public class PersonInfoListFragment extends SmoothListFragment implements Loader
 		setListShown(false);
 
 		getLoaderManager().initLoader(PERSON_EVENTS_LOADER_ID, null, this);
+
+		CustomTabsHelperFragment.attach(getActivity());
 	}
 
 	private static class PersonEventsLoader extends SimpleCursorLoader {

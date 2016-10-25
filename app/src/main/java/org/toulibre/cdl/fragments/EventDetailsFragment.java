@@ -1,7 +1,6 @@
 package org.toulibre.cdl.fragments;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.ShareCompat;
@@ -42,6 +42,8 @@ import org.toulibre.cdl.model.Link;
 import org.toulibre.cdl.model.Person;
 import org.toulibre.cdl.utils.DateUtils;
 import org.toulibre.cdl.utils.StringUtils;
+import org.toulibre.cdl.utils.WebUtils;
+import org.toulibre.cdl.utils.customtabs.CustomTabsHelperFragment;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -167,7 +169,7 @@ public class EventDetailsFragment extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		Activity activity = getActivity();
+		FragmentActivity activity = getActivity();
 		if (activity instanceof FloatingActionButtonProvider) {
 			actionButton = ((FloatingActionButtonProvider) activity).getActionButton();
 			if (actionButton != null) {
@@ -181,6 +183,8 @@ public class EventDetailsFragment extends Fragment {
 		LoaderManager loaderManager = getLoaderManager();
 		loaderManager.initLoader(BOOKMARK_STATUS_LOADER_ID, null, bookmarkStatusLoaderCallbacks);
 		loaderManager.initLoader(EVENT_DETAILS_LOADER_ID, null, eventDetailsLoaderCallbacks);
+
+		CustomTabsHelperFragment.attach(activity);
 	}
 
 	private final View.OnClickListener actionButtonClickListener = new View.OnClickListener() {
@@ -445,7 +449,7 @@ public class EventDetailsFragment extends Fragment {
 		}
 	}
 
-	private static class LinkClickListener implements View.OnClickListener {
+	private class LinkClickListener implements View.OnClickListener {
 
 		private final Link link;
 
@@ -455,8 +459,7 @@ public class EventDetailsFragment extends Fragment {
 
 		@Override
 		public void onClick(View v) {
-			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link.getUrl()));
-			v.getContext().startActivity(intent);
+			WebUtils.openWebLink(getActivity(), Uri.parse(link.getUrl()));
 		}
 	}
 }

@@ -1,10 +1,9 @@
 package org.toulibre.cdl.fragments;
 
-import org.toulibre.cdl.R;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -12,6 +11,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.toulibre.cdl.R;
+import org.toulibre.cdl.utils.WebUtils;
+import org.toulibre.cdl.utils.customtabs.CustomTabsHelperFragment;
 
 import java.util.Locale;
 
@@ -39,6 +42,12 @@ public class MapFragment extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        CustomTabsHelperFragment.attach(getActivity());
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.map, menu);
     }
@@ -54,18 +63,15 @@ public class MapFragment extends Fragment {
     }
 
     private void launchDirections() {
-        Uri uri;
-        Intent intent;
-
-        uri = Uri.parse(String.format(Locale.US, NATIVE_URI, DESTINATION_LATITUDE, DESTINATION_LONGITUDE));
-        intent = new Intent(Intent.ACTION_VIEW, uri);
+        Uri uri = Uri.parse(String.format(Locale.US, NATIVE_URI, DESTINATION_LATITUDE, DESTINATION_LONGITUDE));
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         intent.setPackage("com.google.android.apps.maps");
-        if (intent.resolveActivity(getActivity().getPackageManager()) == null) {
-            intent.setPackage(null);
-            intent.setData(Uri.parse(String.format(Locale.US, WEB_URI, DESTINATION_LATITUDE,
-                    DESTINATION_LONGITUDE, DESTINATION_NAME)));
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            uri = Uri.parse(String.format(Locale.US, WEB_URI, DESTINATION_LATITUDE,
+                    DESTINATION_LONGITUDE, DESTINATION_NAME));
+            WebUtils.openWebLink(getActivity(), uri);
         }
-
-        startActivity(intent);
     }
 }
