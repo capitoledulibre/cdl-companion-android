@@ -30,6 +30,17 @@ android {
         versionName "1.4.0"
     }
 
+    signingConfigs {
+        if (System.getenv("TRAVIS")) {
+            release {
+                storeFile rootProject.file('release.jks')
+                storePassword System.getenv("KEYSTORE_PASS")
+                keyAlias release
+                keyPassword System.getenv("ALIAS_PASS")
+            }
+        }
+    }
+
     productFlavors {
         classic {
             buildConfigField "boolean", "HAS_TRACKING", 'true'
