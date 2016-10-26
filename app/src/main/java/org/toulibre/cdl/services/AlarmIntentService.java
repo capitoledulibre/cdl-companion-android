@@ -1,15 +1,5 @@
 package org.toulibre.cdl.services;
 
-import org.toulibre.cdl.R;
-import org.toulibre.cdl.activities.EventDetailsActivity;
-import org.toulibre.cdl.activities.MainActivity;
-import org.toulibre.cdl.activities.RoomImageDialogActivity;
-import org.toulibre.cdl.db.DatabaseManager;
-import org.toulibre.cdl.fragments.SettingsFragment;
-import org.toulibre.cdl.model.Event;
-import org.toulibre.cdl.receivers.AlarmReceiver;
-import org.toulibre.cdl.utils.StringUtils;
-
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
@@ -31,6 +21,14 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
+
+import org.toulibre.cdl.R;
+import org.toulibre.cdl.activities.EventDetailsActivity;
+import org.toulibre.cdl.activities.MainActivity;
+import org.toulibre.cdl.db.DatabaseManager;
+import org.toulibre.cdl.fragments.SettingsFragment;
+import org.toulibre.cdl.model.Event;
+import org.toulibre.cdl.receivers.AlarmReceiver;
 
 /**
  * A service to schedule or unschedule alarms in the background, keeping the app responsive.
@@ -201,26 +199,6 @@ public class AlarmIntentService extends IntentService {
 
 					// Android Wear extensions
 					NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
-
-					// Add an optional action button to show the room map image
-					String roomName = event.getRoomName();
-					int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName),
-							"drawable", getPackageName());
-					if (roomImageResId != 0) {
-						// The room name is the unique Id of a RoomImageDialogActivity
-						Intent mapIntent = new Intent(this, RoomImageDialogActivity.class).setFlags(
-								Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(roomName));
-						mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_NAME, roomName);
-						mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_IMAGE_RESOURCE_ID, roomImageResId);
-						PendingIntent mapPendingIntent = PendingIntent.getActivity(this, 0, mapIntent,
-								PendingIntent.FLAG_UPDATE_CURRENT);
-						CharSequence mapTitle = getString(R.string.room_map);
-						notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_place_white_24dp, mapTitle,
-								mapPendingIntent));
-						// Use bigger action icon for wearable notification
-						wearableExtender.addAction(new NotificationCompat.Action(R.drawable.ic_place_white_wear, mapTitle,
-								mapPendingIntent));
-					}
 
 					notificationBuilder.extend(wearableExtender);
 
