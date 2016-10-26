@@ -14,4 +14,4 @@ cache:
   directories:
   - "$HOME/.gradle/caches"
   - "$HOME/.gradle/wrapper"
-script: "./gradlew clean assembleClassicRelease assembleOpenRelease"
+script: "./gradlew clean assembleRelease"

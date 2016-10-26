@@ -14,21 +14,19 @@ import io.fabric.sdk.android.Fabric;
 
 public class CdlApplication extends Application {
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		if (BuildConfig.HAS_TRACKING) {
-			Fabric.with(this, new Crashlytics());
-		}
-		Stetho.initializeWithDefaults(this);
-		if (!LeakCanary.isInAnalyzerProcess(this)) {
-			LeakCanary.install(this);
-		}
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Fabric.with(this, new Crashlytics());
+        Stetho.initializeWithDefaults(this);
+        if (!LeakCanary.isInAnalyzerProcess(this)) {
+            LeakCanary.install(this);
+        }
 
-		DatabaseManager.init(this);
-		// Initialize settings
-		PreferenceManager.setDefaultValues(this, R.xml.settings, false);
-		// Alarms (requires settings)
-		FosdemAlarmManager.init(this);
-	}
+        DatabaseManager.init(this);
+        // Initialize settings
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+        // Alarms (requires settings)
+        FosdemAlarmManager.init(this);
+    }
 }

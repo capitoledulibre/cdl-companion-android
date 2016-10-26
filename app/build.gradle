@@ -41,16 +41,6 @@ android {
         }
     }
 
-    productFlavors {
-        classic {
-            buildConfigField "boolean", "HAS_TRACKING", 'true'
-        }
-        open {
-            versionNameSuffix "-fdroid"
-            buildConfigField "boolean", "HAS_TRACKING", 'false'
-        }
-    }
-
     buildTypes {
         release {
             debuggable false
