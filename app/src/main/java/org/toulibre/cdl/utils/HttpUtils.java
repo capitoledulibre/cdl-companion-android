@@ -2,8 +2,6 @@ package org.toulibre.cdl.utils;
 
 import android.content.Context;
 
-import com.facebook.stetho.okhttp3.StethoInterceptor;
-
 import org.toulibre.cdl.BuildConfig;
 
 import java.io.IOException;
@@ -23,28 +21,27 @@ import okhttp3.logging.HttpLoggingInterceptor;
  */
 public class HttpUtils {
 
-	private static final int DEFAULT_TIMEOUT = 10;
+    private static final int DEFAULT_TIMEOUT = 10;
 
-	public static class HttpResult {
-		// Will be null when the local content is up-to-date
-		public InputStream inputStream;
-		public String lastModified;
-	}
+    public static class HttpResult {
+        // Will be null when the local content is up-to-date
+        public InputStream inputStream;
+        public String lastModified;
+    }
 
-	public static HttpResult get(Context context, String path, String lastModified,
-								 String progressAction, String progressExtra) throws IOException {
-		HttpResult result = new HttpResult();
+    public static HttpResult get(Context context, String path, String lastModified,
+                                 String progressAction, String progressExtra) throws IOException {
+        HttpResult result = new HttpResult();
 
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         //noinspection ConstantConditions
         loggingInterceptor.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.HEADERS : HttpLoggingInterceptor.Level.NONE);
-		OkHttpClient client = new OkHttpClient.Builder()
-				.readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
-				.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
-				.addNetworkInterceptor(new ProgressInterceptor(context, progressAction, progressExtra))
-                .addNetworkInterceptor(new StethoInterceptor())
+        OkHttpClient client = new OkHttpClient.Builder()
+                .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                .addNetworkInterceptor(new ProgressInterceptor(context, progressAction, progressExtra))
                 .addInterceptor(loggingInterceptor)
-				.build();
+                .build();
 
         Request.Builder requestBuilder = new Request.Builder().url(path);
         if (lastModified != null) {
@@ -61,5 +58,5 @@ public class HttpUtils {
         } else {
             throw new IOException("Server returned response code: " + response.code());
         }
-	}
+    }
 }
