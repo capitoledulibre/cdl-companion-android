@@ -35,7 +35,7 @@ android {
             release {
                 storeFile rootProject.file('release.jks')
                 storePassword System.getenv("KEYSTORE_PASS")
-                keyAlias release
+                keyAlias 'release'
                 keyPassword System.getenv("ALIAS_PASS")
             }
         }
