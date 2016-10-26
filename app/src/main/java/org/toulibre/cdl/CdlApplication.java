@@ -17,7 +17,9 @@ public class CdlApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Fabric.with(this, new Crashlytics());
+		if (BuildConfig.HAS_TRACKING) {
+			Fabric.with(this, new Crashlytics());
+		}
 		Stetho.initializeWithDefaults(this);
 		if (!LeakCanary.isInAnalyzerProcess(this)) {
 			LeakCanary.install(this);
