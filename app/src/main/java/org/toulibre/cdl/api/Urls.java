@@ -9,11 +9,11 @@ import java.util.Locale;
  */
 public class Urls {
 
-    private static final String SCHEDULE_URL = "https://2015.capitoledulibre.org/schedule/xml";
+    private static final String SCHEDULE_URL = "https://participez-2016.capitoledulibre.org/planning/program/public/?format=xml";
 
-    private static final String EVENT_URL_FORMAT = "https://2015.capitoledulibre.org/programme/presentation/%d/";
+    private static final String EVENT_URL_FORMAT = "https://participez-2016.capitoledulibre.org/programme/presentation/%d/";
 
-    private static final String PERSON_URL_FORMAT = "https://2015.capitoledulibre.org/speaker/profile/%d/";
+    private static final String PERSON_URL_FORMAT = "https://participez-2016.capitoledulibre.org/speaker/profile/%d/";
 
     public static String getSchedule() {
         return SCHEDULE_URL;

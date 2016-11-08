@@ -1,15 +1,5 @@
 package org.toulibre.cdl.services;
 
-import org.toulibre.cdl.R;
-import org.toulibre.cdl.activities.EventDetailsActivity;
-import org.toulibre.cdl.activities.MainActivity;
-import org.toulibre.cdl.activities.RoomImageDialogActivity;
-import org.toulibre.cdl.db.DatabaseManager;
-import org.toulibre.cdl.fragments.SettingsFragment;
-import org.toulibre.cdl.model.Event;
-import org.toulibre.cdl.receivers.AlarmReceiver;
-import org.toulibre.cdl.utils.StringUtils;
-
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
@@ -20,14 +10,25 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
+
+import org.toulibre.cdl.R;
+import org.toulibre.cdl.activities.EventDetailsActivity;
+import org.toulibre.cdl.activities.MainActivity;
+import org.toulibre.cdl.db.DatabaseManager;
+import org.toulibre.cdl.fragments.SettingsFragment;
+import org.toulibre.cdl.model.Event;
+import org.toulibre.cdl.receivers.AlarmReceiver;
 
 /**
  * A service to schedule or unschedule alarms in the background, keeping the app responsive.
@@ -57,8 +58,9 @@ public class AlarmIntentService extends IntentService {
 	}
 
 	private PendingIntent getAlarmPendingIntent(long eventId) {
-		Intent intent = new Intent(this, AlarmReceiver.class).setAction(AlarmReceiver.ACTION_NOTIFY_EVENT).setData(
-				Uri.parse(String.valueOf(eventId)));
+		Intent intent = new Intent(this, AlarmReceiver.class)
+				.setAction(AlarmReceiver.ACTION_NOTIFY_EVENT)
+				.setData(Uri.parse(String.valueOf(eventId)));
 		return PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 	}
 
@@ -81,7 +83,7 @@ public class AlarmIntentService extends IntentService {
 							// Cancel pending alarms that where scheduled between now and delay, if any
 							alarmManager.cancel(pi);
 						} else {
-							alarmManager.set(AlarmManager.RTC_WAKEUP, notificationTime, pi);
+							setExactAlarm(alarmManager, AlarmManager.RTC_WAKEUP, notificationTime, pi);
 						}
 					}
 				} finally {
@@ -117,9 +119,9 @@ public class AlarmIntentService extends IntentService {
 				long startTime = intent.getLongExtra(DatabaseManager.EXTRA_EVENT_START_TIME, -1L);
 				// Only schedule future events. If they start before the delay, the alarm will go off immediately
 				if ((startTime == -1L) || (startTime < System.currentTimeMillis())) {
-					return;
+					break;
 				}
-				alarmManager.set(AlarmManager.RTC_WAKEUP, startTime - delay, getAlarmPendingIntent(eventId));
+				setExactAlarm(alarmManager, AlarmManager.RTC_WAKEUP, startTime - delay, getAlarmPendingIntent(eventId));
 
 				break;
 			}
@@ -174,7 +176,7 @@ public class AlarmIntentService extends IntentService {
 						bigText = spannableBigText;
 					}
 
-					int notificationColor = getResources().getColor(R.color.color_primary);
+					int notificationColor = ContextCompat.getColor(this, R.color.color_primary);
 
 					NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
 							.setSmallIcon(R.drawable.notif_icon)
@@ -198,26 +200,6 @@ public class AlarmIntentService extends IntentService {
 					// Android Wear extensions
 					NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
 
-					// Add an optional action button to show the room map image
-					String roomName = event.getRoomName();
-					int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName),
-							"drawable", getPackageName());
-					if (roomImageResId != 0) {
-						// The room name is the unique Id of a RoomImageDialogActivity
-						Intent mapIntent = new Intent(this, RoomImageDialogActivity.class).setFlags(
-								Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(roomName));
-						mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_NAME, roomName);
-						mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_IMAGE_RESOURCE_ID, roomImageResId);
-						PendingIntent mapPendingIntent = PendingIntent.getActivity(this, 0, mapIntent,
-								PendingIntent.FLAG_UPDATE_CURRENT);
-						CharSequence mapTitle = getString(R.string.room_map);
-						notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_place_white_24dp, mapTitle,
-								mapPendingIntent));
-						// Use bigger action icon for wearable notification
-						wearableExtender.addAction(new NotificationCompat.Action(R.drawable.ic_place_white_wear, mapTitle,
-								mapPendingIntent));
-					}
-
 					notificationBuilder.extend(wearableExtender);
 
 					NotificationManagerCompat.from(this).notify((int) eventId, notificationBuilder.build());
@@ -229,10 +211,18 @@ public class AlarmIntentService extends IntentService {
 		}
 	}
 
+	private static void setExactAlarm(AlarmManager manager, int type, long triggerAtMillis, PendingIntent operation) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			manager.setExact(type, triggerAtMillis, operation);
+		} else {
+			manager.set(type, triggerAtMillis, operation);
+		}
+	}
+
 	private long getDelay() {
 		String delayString = PreferenceManager.getDefaultSharedPreferences(this).getString(
 				SettingsFragment.KEY_PREF_NOTIFICATIONS_DELAY, "0");
 		// Convert from minutes to milliseconds
-		return Long.parseLong(delayString) * 1000L * 60L;
+		return Long.parseLong(delayString) * DateUtils.MINUTE_IN_MILLIS;
 	}
 }

@@ -1,9 +1,5 @@
 package org.toulibre.cdl.activities;
 
-import org.toulibre.cdl.R;
-import org.toulibre.cdl.fragments.MessageDialogFragment;
-import org.toulibre.cdl.fragments.SearchResultListFragment;
-
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
@@ -12,12 +8,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class SearchResultActivity extends ActionBarActivity {
+import org.toulibre.cdl.R;
+import org.toulibre.cdl.fragments.MessageDialogFragment;
+import org.toulibre.cdl.fragments.SearchResultListFragment;
+
+public class SearchResultActivity extends AppCompatActivity {
 
 	public static final int MIN_SEARCH_LENGTH = 3;
 

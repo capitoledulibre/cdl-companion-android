@@ -1,13 +1,5 @@
 package org.toulibre.cdl.activities;
 
-import org.toulibre.cdl.R;
-import org.toulibre.cdl.db.DatabaseManager;
-import org.toulibre.cdl.fragments.EventDetailsFragment;
-import org.toulibre.cdl.loaders.LocalCacheLoader;
-import org.toulibre.cdl.model.Event;
-import org.toulibre.cdl.utils.NfcUtils;
-import org.toulibre.cdl.utils.NfcUtils.CreateNfcAppDataCallback;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,16 +10,24 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import org.toulibre.cdl.R;
+import org.toulibre.cdl.db.DatabaseManager;
+import org.toulibre.cdl.fragments.EventDetailsFragment;
+import org.toulibre.cdl.loaders.LocalCacheLoader;
+import org.toulibre.cdl.model.Event;
+import org.toulibre.cdl.utils.NfcUtils;
+import org.toulibre.cdl.utils.NfcUtils.CreateNfcAppDataCallback;
 
 /**
  * Displays a single event passed either as a complete Parcelable object in extras or as an id in data.
  *
  * @author Christophe Beyls
  */
-public class EventDetailsActivity extends ActionBarActivity implements LoaderCallbacks<Event>, CreateNfcAppDataCallback {
+public class EventDetailsActivity extends AppCompatActivity implements LoaderCallbacks<Event>, CreateNfcAppDataCallback {
 
     public static final String EXTRA_EVENT = "event";
 

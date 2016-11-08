@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="org.toulibre.cdl"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:installLocation="auto">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.NFC" />
 
     <!-- Permissions required for alarms -->
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <uses-sdk tools:overrideLibrary="android.support.customtabs" />
 
     <!-- Make touch screen optional since all screens can be used with a pad -->
     <uses-feature
         android:name="android.hardware.touchscreen"
-        android:required="false"/>
+        android:required="false" />
 
     <application
         android:name=".CdlApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -27,16 +29,16 @@
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar.WindowDrawsSystemBarBackgrounds">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <meta-data
                 android:name="android.app.default_searchable"
-                android:value=".activities.SearchResultActivity"/>
+                android:value=".activities.SearchResultActivity" />
         </activity>
         <activity
             android:name=".activities.TrackScheduleActivity"
@@ -44,67 +46,61 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity"/>
+                android:value=".activities.MainActivity" />
         </activity>
-        <activity android:name=".activities.TrackScheduleEventActivity"/>
+        <activity android:name=".activities.TrackScheduleEventActivity" />
         <activity
             android:name=".activities.EventDetailsActivity"
             android:parentActivityName=".activities.TrackScheduleActivity">
             <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:mimeType="application/org.toulibre.cdl"/>
+                <data android:mimeType="application/org.toulibre.cdl" />
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.TrackScheduleActivity"/>
+                android:value=".activities.TrackScheduleActivity" />
         </activity>
         <activity
             android:name=".activities.PersonInfoActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.SearchResultActivity"
             android:launchMode="singleTop">
             <intent-filter>
-                <action android:name="android.intent.action.SEARCH"/>
+                <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.google.android.gms.actions.SEARCH_ACTION"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
             <meta-data
                 android:name="android.app.searchable"
-                android:resource="@xml/main_searchable"/>
+                android:resource="@xml/main_searchable" />
         </activity>
-        <!-- Clearing the Task Affinity allows this dialog activity to be displayed without bringing to front the main application with it. -->
-        <activity
-            android:name=".activities.RoomImageDialogActivity"
-            android:excludeFromRecents="true"
-            android:taskAffinity=""
-            android:theme="@style/DialogTheme"/>
         <activity
             android:name=".activities.SettingsActivity"
-            android:label="@string/settings"/>
+            android:label="@string/settings" />
 
         <receiver
             android:name=".receivers.AlarmReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
         <service
             android:name=".services.AlarmIntentService"
-            android:exported="false"/>
+            android:exported="false" />
 
         <provider
             android:name=".providers.SearchSuggestionProvider"
             android:authorities="org.toulibre.cdl.search"
-            android:exported="true"/>
+            android:exported="true" />
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="7826122d19d8fbe241d1d771f84d07700dad4371" />

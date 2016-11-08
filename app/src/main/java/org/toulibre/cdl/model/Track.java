@@ -1,10 +1,10 @@
 package org.toulibre.cdl.model;
 
-import org.toulibre.cdl.R;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.StringRes;
+
+import org.toulibre.cdl.R;
 
 public class Track implements Parcelable {
 
@@ -18,6 +18,7 @@ public class Track implements Parcelable {
 			this.nameResId = nameResId;
 		}
 
+		@StringRes
 		public int getNameResId() {
 			return nameResId;
 		}
@@ -95,7 +96,7 @@ public class Track implements Parcelable {
 		}
 	};
 
-	private Track(Parcel in) {
+	Track(Parcel in) {
 		name = in.readString();
 		type = Type.values()[in.readInt()];
 	}
