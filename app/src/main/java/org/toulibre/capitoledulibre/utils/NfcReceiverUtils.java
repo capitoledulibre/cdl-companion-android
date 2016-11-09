@@ -1,10 +1,8 @@
 package org.toulibre.capitoledulibre.utils;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
-import android.os.Build;
 import android.os.Parcelable;
 
 /**
@@ -13,7 +11,6 @@ import android.os.Parcelable;
  * @author Christophe Beyls
  * 
  */
-@TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
 class NfcReceiverUtils {
 
 	public static boolean hasAppData(Intent intent) {

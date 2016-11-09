@@ -1,15 +1,13 @@
 package org.toulibre.capitoledulibre.utils;
 
-import org.toulibre.capitoledulibre.utils.NfcUtils.CreateNfcAppDataCallback;
-
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.nfc.NfcEvent;
-import android.os.Build;
+
+import org.toulibre.capitoledulibre.utils.NfcUtils.CreateNfcAppDataCallback;
 
 import java.nio.charset.Charset;
 
@@ -19,7 +17,6 @@ import java.nio.charset.Charset;
  * @author Christophe Beyls
  * 
  */
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 class NfcSenderUtils {
 
 	public static boolean setAppDataPushMessageCallbackIfAvailable(Activity activity, final CreateNfcAppDataCallback callback) {

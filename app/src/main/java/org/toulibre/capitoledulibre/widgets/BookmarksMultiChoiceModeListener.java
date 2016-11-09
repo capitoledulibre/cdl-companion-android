@@ -1,8 +1,6 @@
 package org.toulibre.capitoledulibre.widgets;
 
-import android.annotation.TargetApi;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +15,6 @@ import org.toulibre.capitoledulibre.db.DatabaseManager;
  *
  * @author Christophe Beyls
  */
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class BookmarksMultiChoiceModeListener implements MultiChoiceModeListener {
 
 	private AbsListView listView;
