@@ -16,9 +16,9 @@ android {
 
     defaultConfig {
         applicationId "org.toulibre.capitoledulibre"
-        minSdkVersion 9
+        minSdkVersion 16
         targetSdkVersion 25
-        versionCode 8
+        versionCode 9
         versionName "1.4.0-fdroid"
     }
 
