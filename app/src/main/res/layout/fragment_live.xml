@@ -5,7 +5,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <org.toulibre.cdl.widgets.SlidingTabLayout
+    <org.toulibre.capitoledulibre.widgets.SlidingTabLayout
         android:id="@+id/sliding_tabs"
         style="@style/SlidingTabs"
         android:layout_width="match_parent"
