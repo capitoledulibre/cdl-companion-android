@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.toulibre.cdl"
+    package="org.toulibre.capitoledulibre"
     android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -57,7 +57,7 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:mimeType="application/org.toulibre.cdl" />
+                <data android:mimeType="application/org.toulibre.capitoledulibre" />
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -99,7 +99,7 @@
 
         <provider
             android:name=".providers.SearchSuggestionProvider"
-            android:authorities="org.toulibre.cdl.search"
+            android:authorities="org.toulibre.capitoledulibre.search"
             android:exported="true" />
         <meta-data
             android:name="io.fabric.ApiKey"

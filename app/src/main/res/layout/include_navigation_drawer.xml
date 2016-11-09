@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.toulibre.cdl.widgets.ScrimInsetsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<org.toulibre.capitoledulibre.widgets.ScrimInsetsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_menu"
     android:layout_width="@dimen/main_menu_width"
@@ -27,7 +27,7 @@
                 android:scaleType="center"
                 android:src="@drawable/cdl_title" />
 
-            <org.toulibre.cdl.widgets.AdapterLinearLayout
+            <org.toulibre.capitoledulibre.widgets.AdapterLinearLayout
                 android:id="@+id/sections"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -64,4 +64,4 @@
         android:padding="4dp"
         tools:text="DB last updated: 1 jan. 2015 13:37:00" />
 
-</org.toulibre.cdl.widgets.ScrimInsetsFrameLayout>
+</org.toulibre.capitoledulibre.widgets.ScrimInsetsFrameLayout>
