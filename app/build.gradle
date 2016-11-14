@@ -31,13 +31,22 @@ android {
     }
 
     signingConfigs {
+        def keystorePass
+        def aliasPass
         if (System.getenv("TRAVIS")) {
-            release {
-                storeFile rootProject.file('release.jks')
-                storePassword System.getenv("KEYSTORE_PASS")
-                keyAlias 'release'
-                keyPassword System.getenv("ALIAS_PASS")
-            }
+            keystorePass = System.getenv("KEYSTORE_PASS")
+            aliasPass = System.getenv("ALIAS_PASS")
+        } else {
+            Properties sProps = new Properties()
+            sProps.load(rootProject.file('signing.properties').newDataInputStream())
+            keystorePass = sProps.getProperty("KEYSTORE_PASS")
+            aliasPass = sProps.getProperty("ALIAS_PASS")
+        }
+        release {
+            storeFile rootProject.file('release.jks')
+            storePassword keystorePass
+            keyAlias 'release'
+            keyPassword aliasPass
         }
     }
 
@@ -47,11 +56,9 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            if (System.getenv("TRAVIS")) {
-                signingConfig signingConfigs.release
-                // Beta
-                ext.betaDistributionGroupAliases="testeurs"
-            }
+            signingConfig signingConfigs.release
+            // Beta
+            ext.betaDistributionGroupAliases = "testeurs"
         }
     }
 
