@@ -1,5 +1,7 @@
 package org.toulibre.capitoledulibre.parsers;
 
+import android.text.TextUtils;
+
 import org.toulibre.capitoledulibre.model.Day;
 import org.toulibre.capitoledulibre.model.Event;
 import org.toulibre.capitoledulibre.model.Link;
@@ -8,8 +10,6 @@ import org.toulibre.capitoledulibre.model.Track;
 import org.toulibre.capitoledulibre.utils.DateUtils;
 import org.toulibre.capitoledulibre.utils.StringUtils;
 import org.xmlpull.v1.XmlPullParser;
-
-import android.text.TextUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -151,17 +151,6 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
                                                 person.setName(parser.nextText());
 
                                                 persons.add(person);
-                                            }
-                                        }
-                                        break;
-                                    case "links":
-                                        while (!isNextEndTag("links")) {
-                                            if (isStartTag("link")) {
-                                                Link link = new Link();
-                                                link.setUrl(parser.getAttributeValue(null, "href"));
-                                                link.setDescription(parser.nextText());
-
-                                                links.add(link);
                                             }
                                         }
                                         break;

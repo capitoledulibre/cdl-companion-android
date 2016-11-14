@@ -18,7 +18,7 @@ android {
         applicationId "org.toulibre.capitoledulibre"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 9
+        versionCode 10
         versionName "1.4.0-fdroid"
     }
 
