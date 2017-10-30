@@ -1,10 +1,11 @@
 package org.toulibre.capitoledulibre.model;
 
-import org.toulibre.capitoledulibre.api.Urls;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
+
+import org.toulibre.capitoledulibre.api.Urls;
 
 import java.util.Date;
 import java.util.List;
@@ -12,31 +13,18 @@ import java.util.List;
 public class Event implements Parcelable {
 
     private long id;
-
     private Day day;
-
     private Date startTime;
-
     private Date endTime;
-
     private String roomName;
-
     private String slug;
-
     private String title;
-
     private String subTitle;
-
     private Track track;
-
     private String abstractText;
-
     private String description;
-
     private String personsSummary;
-
     private List<Person> persons; // Optional
-
     private List<Link> links; // Optional
 
     public Event() {
@@ -85,7 +73,7 @@ public class Event implements Parcelable {
         if ((startTime == null) || (endTime == null)) {
             return 0;
         }
-        return (int) ((this.endTime.getTime() - this.startTime.getTime()) / 1000L);
+        return (int) ((this.endTime.getTime() - this.startTime.getTime()) / DateUtils.MINUTE_IN_MILLIS);
     }
 
     public String getRoomName() {
@@ -190,12 +178,10 @@ public class Event implements Parcelable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
         Event other = (Event) obj;
         return id == other.id;
     }
@@ -219,18 +205,8 @@ public class Event implements Parcelable {
         out.writeString(abstractText);
         out.writeString(description);
         out.writeString(personsSummary);
-        if (persons == null) {
-            out.writeInt(0);
-        } else {
-            out.writeInt(1);
-            out.writeTypedList(persons);
-        }
-        if (links == null) {
-            out.writeInt(0);
-        } else {
-            out.writeInt(1);
-            out.writeTypedList(links);
-        }
+        out.writeTypedList(persons);
+        out.writeTypedList(links);
     }
 
     public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
@@ -243,7 +219,7 @@ public class Event implements Parcelable {
         }
     };
 
-    private Event(Parcel in) {
+    Event(Parcel in) {
         id = in.readLong();
         day = Day.CREATOR.createFromParcel(in);
         long time = in.readLong();
@@ -262,11 +238,7 @@ public class Event implements Parcelable {
         abstractText = in.readString();
         description = in.readString();
         personsSummary = in.readString();
-        if (in.readInt() == 1) {
-            persons = in.createTypedArrayList(Person.CREATOR);
-        }
-        if (in.readInt() == 1) {
-            links = in.createTypedArrayList(Link.CREATOR);
-        }
+        persons = in.createTypedArrayList(Person.CREATOR);
+        links = in.createTypedArrayList(Link.CREATOR);
     }
 }

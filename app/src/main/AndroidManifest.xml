@@ -4,6 +4,8 @@
     package="org.toulibre.capitoledulibre"
     android:installLocation="auto">
 
+    <uses-sdk tools:overrideLibrary="android.support.customtabs" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.NFC" />
 
@@ -37,6 +39,9 @@
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".activities.SearchResultActivity" />
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
         <activity
             android:name=".activities.TrackScheduleActivity"
@@ -46,16 +51,19 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
         </activity>
-        <activity android:name=".activities.TrackScheduleEventActivity" />
+        <activity
+            android:name=".activities.TrackScheduleEventActivity"
+            android:label="@string/event_details" />
         <activity
             android:name=".activities.EventDetailsActivity"
+            android:label="@string/event_details"
             android:parentActivityName=".activities.TrackScheduleActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:mimeType="application/org.toulibre.capitoledulibre" />
+                <data android:mimeType="application/${applicationId}" />
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -66,6 +74,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.SearchResultActivity"
+            android:label="@string/search_events"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -81,7 +90,12 @@
         </activity>
         <activity
             android:name=".activities.SettingsActivity"
-            android:label="@string/settings" />
+            android:label="@string/settings">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.NOTIFICATION_PREFERENCES" />
+            </intent-filter>
+        </activity>
 
         <receiver
             android:name=".receivers.AlarmReceiver"
@@ -93,12 +107,19 @@
 
         <service
             android:name=".services.AlarmIntentService"
-            android:exported="false" />
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <provider
             android:name=".providers.SearchSuggestionProvider"
-            android:authorities="org.toulibre.capitoledulibre.search"
+            android:authorities="${applicationId}.search"
             android:exported="true" />
+        <provider
+            android:name=".providers.BookmarksExportProvider"
+            android:authorities="${applicationId}.bookmarks"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="7826122d19d8fbe241d1d771f84d07700dad4371" />

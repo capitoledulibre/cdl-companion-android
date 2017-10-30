@@ -1,33 +1,40 @@
 package org.toulibre.capitoledulibre.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.preference.ListPreference;
+import android.preference.PreferenceManager;
 import android.view.MenuItem;
 
 import org.toulibre.capitoledulibre.R;
-import org.toulibre.capitoledulibre.fragments.SettingsFragment;
 
-public class SettingsActivity extends AppCompatActivity {
+import org.toulibre.capitoledulibre.utils.TwoStatePreferenceCompat;
 
+public class SettingsActivity extends AppCompatPreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+	public static final String KEY_PREF_NOTIFICATIONS_ENABLED = "notifications_enabled";
+	public static final String KEY_PREF_NOTIFICATIONS_VIBRATE = "notifications_vibrate";
+	public static final String KEY_PREF_NOTIFICATIONS_LED = "notifications_led";
+	public static final String KEY_PREF_NOTIFICATIONS_DELAY = "notifications_delay";
+
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.content);
 
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		if (savedInstanceState == null) {
-			SettingsFragment f = SettingsFragment.newInstance();
-			getSupportFragmentManager().beginTransaction().add(R.id.content, f).commit();
-		}
+		addPreferencesFromResource(R.xml.settings);
+		updateNotificationsEnabled();
+		updateNotificationsDelaySummary();
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			onBackPressed();
-			return true;
+			case android.R.id.home:
+				onBackPressed();
+				return true;
 		}
 		return false;
 	}
@@ -36,5 +43,40 @@ public class SettingsActivity extends AppCompatActivity {
 	public void onBackPressed() {
 		super.onBackPressed();
 		overridePendingTransition(R.anim.partial_zoom_in, R.anim.slide_out_right);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+	}
+
+	@Override
+	protected void onPause() {
+		PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+		super.onPause();
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (KEY_PREF_NOTIFICATIONS_ENABLED.equals(key)) {
+			updateNotificationsEnabled();
+		} else if (KEY_PREF_NOTIFICATIONS_DELAY.equals(key)) {
+			updateNotificationsDelaySummary();
+		}
+	}
+
+	@SuppressWarnings("deprecation")
+	private void updateNotificationsEnabled() {
+		boolean notificationsEnabled = TwoStatePreferenceCompat.isChecked(findPreference(KEY_PREF_NOTIFICATIONS_ENABLED));
+		findPreference(KEY_PREF_NOTIFICATIONS_VIBRATE).setEnabled(notificationsEnabled);
+		findPreference(KEY_PREF_NOTIFICATIONS_LED).setEnabled(notificationsEnabled);
+		findPreference(KEY_PREF_NOTIFICATIONS_DELAY).setEnabled(notificationsEnabled);
+	}
+
+	@SuppressWarnings("deprecation")
+	private void updateNotificationsDelaySummary() {
+		ListPreference notificationsDelayPreference = (ListPreference) findPreference(KEY_PREF_NOTIFICATIONS_DELAY);
+		notificationsDelayPreference.setSummary(notificationsDelayPreference.getEntry());
 	}
 }

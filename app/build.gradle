@@ -29,6 +29,9 @@ android {
         targetSdkVersion 26
         versionCode 10
         versionName "1.4.0"
+        // Supported languages
+        resConfigs "fr"
+        vectorDrawables.useSupportLibrary = true
     }
 
     signingConfigs {
@@ -70,6 +73,7 @@ android {
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:recyclerview-v7:26.1.0'
     implementation 'com.android.support:cardview-v7:26.1.0'
     implementation 'com.android.support:customtabs:26.1.0'
     implementation 'com.github.chrisbanes.photoview:library:1.2.4'

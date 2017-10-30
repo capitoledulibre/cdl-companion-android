@@ -154,6 +154,12 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
                                             }
                                         }
                                         break;
+                                    case "person":
+                                        Person person = new Person();
+                                        person.setId(Long.parseLong(parser.getAttributeValue(null, "id")));
+                                        person.setName(parser.nextText());
+                                        persons.add(person);
+                                        break;
                                     default:
                                         skipToEndTag();
                                         break;

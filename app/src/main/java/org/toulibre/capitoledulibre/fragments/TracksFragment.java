@@ -12,8 +12,8 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +26,7 @@ import org.toulibre.capitoledulibre.widgets.SlidingTabLayout;
 
 import java.util.List;
 
-public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day>> {
+public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day>>, RecycledViewPoolProvider {
 
 	static class ViewHolder {
 		View contentView;
@@ -34,6 +34,7 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		ViewPager pager;
 		SlidingTabLayout slidingTabs;
 		DaysAdapter daysAdapter;
+		RecyclerView.RecycledViewPool recycledViewPool;
 	}
 
 	private static final int DAYS_LOADER_ID = 1;
@@ -62,6 +63,7 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		holder.pager = (ViewPager) view.findViewById(R.id.pager);
 		holder.slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
 		holder.daysAdapter = new DaysAdapter(getChildFragmentManager());
+		holder.recycledViewPool = new RecyclerView.RecycledViewPool();
 
 		return view;
 	}
@@ -86,10 +88,15 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		final int page = holder.pager.getCurrentItem();
 		SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
 		if (prefs.getInt(PREF_CURRENT_PAGE, -1) != page) {
-			SharedPreferencesCompat.EditorCompat.getInstance().apply(
-					prefs.edit().putInt(PREF_CURRENT_PAGE, page)
-			);
+			prefs.edit()
+					.putInt(PREF_CURRENT_PAGE, page)
+					.apply();
 		}
+	}
+
+	@Override
+	public RecyclerView.RecycledViewPool getRecycledViewPool() {
+		return (holder == null) ? null : holder.recycledViewPool;
 	}
 
 	private static class DaysLoader extends GlobalCacheLoader<List<Day>> {

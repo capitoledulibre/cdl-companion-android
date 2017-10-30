@@ -7,7 +7,7 @@ import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 import com.squareup.leakcanary.LeakCanary;
 
-import org.toulibre.capitoledulibre.alarms.FosdemAlarmManager;
+import org.toulibre.capitoledulibre.alarms.AlarmManager;
 import org.toulibre.capitoledulibre.db.DatabaseManager;
 
 import io.fabric.sdk.android.Fabric;
@@ -27,6 +27,6 @@ public class CdlApplication extends Application {
         // Initialize settings
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
         // Alarms (requires settings)
-        FosdemAlarmManager.init(this);
+        AlarmManager.getInstance(this);
     }
 }
