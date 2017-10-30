@@ -18,12 +18,11 @@ import android.widget.TextView;
 
 import org.toulibre.capitoledulibre.R;
 import org.toulibre.capitoledulibre.activities.TrackScheduleActivity;
+import org.toulibre.capitoledulibre.adapters.RecyclerViewCursorAdapter;
 import org.toulibre.capitoledulibre.db.DatabaseManager;
 import org.toulibre.capitoledulibre.loaders.SimpleCursorLoader;
 import org.toulibre.capitoledulibre.model.Day;
 import org.toulibre.capitoledulibre.model.Track;
-
-import org.toulibre.capitoledulibre.adapters.RecyclerViewCursorAdapter;
 
 public class TracksListFragment extends RecyclerViewFragment implements LoaderCallbacks<Cursor> {
 

@@ -20,7 +20,6 @@ import org.toulibre.capitoledulibre.R;
 import org.toulibre.capitoledulibre.adapters.BookmarksAdapter;
 import org.toulibre.capitoledulibre.db.DatabaseManager;
 import org.toulibre.capitoledulibre.loaders.SimpleCursorLoader;
-
 import org.toulibre.capitoledulibre.providers.BookmarksExportProvider;
 
 /**
