@@ -1,6 +1,20 @@
 package org.toulibre.capitoledulibre.activities;
 
-import com.viewpagerindicator.PageIndicator;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.provider.BaseColumns;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.Loader;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
+
+import com.viewpagerindicator.UnderlinePageIndicator;
 
 import org.toulibre.capitoledulibre.R;
 import org.toulibre.capitoledulibre.db.DatabaseManager;
@@ -11,25 +25,13 @@ import org.toulibre.capitoledulibre.model.Track;
 import org.toulibre.capitoledulibre.utils.NfcUtils;
 import org.toulibre.capitoledulibre.utils.NfcUtils.CreateNfcAppDataCallback;
 
-import android.database.Cursor;
-import android.os.Bundle;
-import android.provider.BaseColumns;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.Loader;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
-import android.view.View;
+import org.toulibre.capitoledulibre.utils.ThemeUtils;
+import org.toulibre.capitoledulibre.widgets.ContentLoadingProgressBar;
 
 /**
  * Event view of the track schedule; allows to slide between events of the same track using a ViewPager.
- * 
+ *
  * @author Christophe Beyls
- * 
  */
 public class TrackScheduleEventActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, CreateNfcAppDataCallback {
 
@@ -42,9 +44,9 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 	private Day day;
 	private Track track;
 	private int initialPosition = -1;
-	private View progress;
+	private ContentLoadingProgressBar progress;
 	private ViewPager pager;
-	private PageIndicator pageIndicator;
+	private UnderlinePageIndicator pageIndicator;
 	private TrackScheduleEventAdapter adapter;
 
 	@Override
@@ -57,10 +59,11 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 		day = extras.getParcelable(EXTRA_DAY);
 		track = extras.getParcelable(EXTRA_TRACK);
 
-		progress = findViewById(R.id.progress);
+		progress = (ContentLoadingProgressBar) findViewById(R.id.progress);
 		pager = (ViewPager) findViewById(R.id.pager);
 		adapter = new TrackScheduleEventAdapter(getSupportFragmentManager());
-		pageIndicator = (PageIndicator) findViewById(R.id.indicator);
+		pageIndicator = (UnderlinePageIndicator) findViewById(R.id.indicator);
+		pageIndicator.setSelectedColor(ContextCompat.getColor(this, track.getType().getColorResId()));
 
 		if (savedInstanceState == null) {
 			initialPosition = extras.getInt(EXTRA_POSITION, -1);
@@ -72,6 +75,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 		bar.setDisplayHomeAsUpEnabled(true);
 		bar.setTitle(track.toString());
 		bar.setSubtitle(day.toString());
+		ThemeUtils.setActionBarTrackColor(this, track.getType());
 
 		// Enable Android Beam
 		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
@@ -81,7 +85,11 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 	}
 
 	private void setCustomProgressVisibility(boolean isVisible) {
-		progress.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+		if (isVisible) {
+			progress.show();
+		} else {
+			progress.hide();
+		}
 	}
 
 	@Override
@@ -99,9 +107,9 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			finish();
-			return true;
+			case android.R.id.home:
+				finish();
+				return true;
 		}
 		return false;
 	}

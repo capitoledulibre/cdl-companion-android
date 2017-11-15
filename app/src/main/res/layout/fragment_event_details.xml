@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/scroll_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context=".activities.EventDetailsActivity">
@@ -38,6 +40,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:saveEnabled="false"
                 tools:text="FOSDEM Staff"/>
 
             <View
@@ -65,11 +68,12 @@
 
             <TextView
                 android:id="@+id/room"
-                style="@style/Metadata.Selectable"
+                style="@style/Metadata"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/ic_place_grey600_18dp"
                 android:drawableStart="@drawable/ic_place_grey600_18dp"
+                android:saveEnabled="false"
                 tools:text="Janson (Building J)"/>
 
         </LinearLayout>
@@ -81,6 +85,7 @@
             android:layout_height="wrap_content"
             android:background="@color/translucent_grey"
             android:padding="@dimen/content_margin"
+            android:saveEnabled="false"
             android:textIsSelectable="true"
             tools:text="FOSDEM welcome and opening talk."/>
 
@@ -90,10 +95,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/content_margin"
+            android:saveEnabled="false"
             android:textIsSelectable="true"
             tools:text="Welcome to FOSDEM 2015!"/>
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/links_header"
+            style="@style/Header"
+            android:layout_marginLeft="@dimen/content_margin"
+            android:layout_marginRight="@dimen/content_margin"
+            android:layout_marginTop="8dp"
+            android:text="@string/related_links_header"
+            android:visibility="gone"/>
+
+        <android.support.v7.widget.LinearLayoutCompat
             android:id="@+id/links_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -101,13 +116,9 @@
             android:paddingBottom="@dimen/content_margin"
             android:paddingLeft="@dimen/content_margin"
             android:paddingRight="@dimen/content_margin"
-            android:paddingTop="8dp"
-            android:visibility="gone">
-
-            <TextView
-                style="@style/Header"
-                android:text="@string/related_links_header"/>
-        </LinearLayout>
+            android:visibility="gone"
+            app:divider="?android:attr/listDivider"
+            app:showDividers="middle"/>
     </LinearLayout>
 
 </ScrollView>

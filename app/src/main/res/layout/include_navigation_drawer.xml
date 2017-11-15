@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <org.toulibre.capitoledulibre.widgets.ScrimInsetsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_menu"
     android:layout_width="@dimen/main_menu_width"
@@ -25,7 +26,7 @@
                 android:contentDescription="@string/app_name"
                 android:padding="@dimen/main_menu_padding"
                 android:scaleType="center"
-                android:src="@drawable/cdl_title" />
+                app:srcCompat="@drawable/cdl_title" />
 
             <org.toulibre.capitoledulibre.widgets.AdapterLinearLayout
                 android:id="@+id/sections"

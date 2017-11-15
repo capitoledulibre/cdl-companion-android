@@ -4,17 +4,17 @@ import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
-import android.net.Uri;
 import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.content.SharedPreferencesCompat;
 import android.text.TextUtils;
 
+import org.toulibre.capitoledulibre.BuildConfig;
 import org.toulibre.capitoledulibre.model.Day;
 import org.toulibre.capitoledulibre.model.Event;
 import org.toulibre.capitoledulibre.model.Link;
@@ -39,15 +39,12 @@ import java.util.Set;
  */
 public class DatabaseManager {
 
-	public static final String ACTION_SCHEDULE_REFRESHED = "org.toulibre.capitoledulibre.action.SCHEDULE_REFRESHED";
-	public static final String ACTION_ADD_BOOKMARK = "org.toulibre.capitoledulibre.action.ADD_BOOKMARK";
+	public static final String ACTION_SCHEDULE_REFRESHED = BuildConfig.APPLICATION_ID + ".action.SCHEDULE_REFRESHED";
+	public static final String ACTION_ADD_BOOKMARK = BuildConfig.APPLICATION_ID + ".action.ADD_BOOKMARK";
 	public static final String EXTRA_EVENT_ID = "event_id";
 	public static final String EXTRA_EVENT_START_TIME = "event_start";
-	public static final String ACTION_REMOVE_BOOKMARKS = "org.toulibre.capitoledulibre.action.REMOVE_BOOKMARKS";
+	public static final String ACTION_REMOVE_BOOKMARKS = BuildConfig.APPLICATION_ID + ".action.REMOVE_BOOKMARKS";
 	public static final String EXTRA_EVENT_IDS = "event_ids";
-
-	private static final Uri URI_TRACKS = Uri.parse("sqlite://org.toulibre.capitoledulibre/tracks");
-	private static final Uri URI_EVENTS = Uri.parse("sqlite://org.toulibre.capitoledulibre/events");
 
 	private static final String DB_PREFS_FILE = "database";
 	private static final String LAST_UPDATE_TIME_PREF = "last_update_time";
@@ -55,8 +52,8 @@ public class DatabaseManager {
 
 	private static DatabaseManager instance;
 
-	private Context context;
-	private DatabaseHelper helper;
+	private final Context context;
+	private final DatabaseHelper helper;
 
 	private List<Day> cachedDays;
 	private int year = -1;
@@ -269,14 +266,11 @@ public class DatabaseManager {
 				cachedDays = null;
 				year = -1;
 				// Set last update time and server's last modified tag
-				SharedPreferencesCompat.EditorCompat.getInstance().apply(
-						getSharedPreferences().edit()
-								.putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis())
-								.putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
-				);
+				getSharedPreferences().edit()
+						.putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis())
+						.putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
+						.apply();
 
-				context.getContentResolver().notifyChange(URI_TRACKS, null);
-				context.getContentResolver().notifyChange(URI_EVENTS, null);
 				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
 			}
 		}
@@ -292,14 +286,12 @@ public class DatabaseManager {
 
 			cachedDays = null;
 			year = -1;
-			SharedPreferencesCompat.EditorCompat.getInstance().apply(
-					getSharedPreferences().edit().remove(LAST_UPDATE_TIME_PREF)
-			);
+			getSharedPreferences().edit()
+					.remove(LAST_UPDATE_TIME_PREF)
+					.apply();
 		} finally {
 			db.endTransaction();
 
-			context.getContentResolver().notifyChange(URI_TRACKS, null);
-			context.getContentResolver().notifyChange(URI_EVENTS, null);
 			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
 		}
 	}
@@ -382,9 +374,8 @@ public class DatabaseManager {
 						+ " JOIN " + DatabaseHelper.EVENTS_TABLE_NAME + " e ON t.id = e.track_id"
 						+ " WHERE e.day_index = ?"
 						+ " GROUP BY t.id"
-						+ " ORDER BY t.name ASC", selectionArgs);
-		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
-		return cursor;
+						+ " ORDER BY t.name COLLATE LOCALIZED ASC", selectionArgs);
+		return new LocalBroadcastCursor(cursor, context, new IntentFilter(ACTION_SCHEDULE_REFRESHED));
 	}
 
 	public static Track toTrack(Cursor cursor, Track track) {
@@ -431,6 +422,13 @@ public class DatabaseManager {
 		}
 	}
 
+	private Cursor toEventCursor(Cursor wrappedCursor) {
+		IntentFilter intentFilter = new IntentFilter(ACTION_SCHEDULE_REFRESHED);
+		intentFilter.addAction(ACTION_ADD_BOOKMARK);
+		intentFilter.addAction(ACTION_REMOVE_BOOKMARKS);
+		return new LocalBroadcastCursor(wrappedCursor, context, intentFilter);
+	}
+
 	/**
 	 * Returns the events for a specified track.
 	 *
@@ -452,8 +450,7 @@ public class DatabaseManager {
 						+ " WHERE e.day_index = ? AND t.name = ? AND t.type = ?"
 						+ " GROUP BY e.id"
 						+ " ORDER BY e.start_time ASC", selectionArgs);
-		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
-		return cursor;
+		return toEventCursor(cursor);
 	}
 
 	/**
@@ -505,8 +502,7 @@ public class DatabaseManager {
 						+ " GROUP BY e.id"
 						+ " ORDER BY e.start_time " + ascendingString,
 				selectionArgs.toArray(new String[selectionArgs.size()]));
-		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
-		return cursor;
+		return toEventCursor(cursor);
 	}
 
 	/**
@@ -530,8 +526,7 @@ public class DatabaseManager {
 						+ " WHERE ep2.person_id = ?"
 						+ " GROUP BY e.id"
 						+ " ORDER BY e.start_time ASC", selectionArgs);
-		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
-		return cursor;
+		return toEventCursor(cursor);
 	}
 
 	/**
@@ -563,8 +558,7 @@ public class DatabaseManager {
 						+ whereCondition
 						+ " GROUP BY e.id"
 						+ " ORDER BY e.start_time ASC", selectionArgs);
-		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
-		return cursor;
+		return toEventCursor(cursor);
 	}
 
 	/**
@@ -603,8 +597,7 @@ public class DatabaseManager {
 						+ " )"
 						+ " GROUP BY e.id"
 						+ " ORDER BY e.start_time ASC", selectionArgs);
-		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
-		return cursor;
+		return toEventCursor(cursor);
 	}
 
 	/**
@@ -731,9 +724,8 @@ public class DatabaseManager {
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
 				"SELECT rowid AS _id, name"
 						+ " FROM " + DatabaseHelper.PERSONS_TABLE_NAME
-						+ " ORDER BY name COLLATE NOCASE", null);
-		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
-		return cursor;
+						+ " ORDER BY name COLLATE LOCALIZED", null);
+		return new LocalBroadcastCursor(cursor, context, new IntentFilter(ACTION_SCHEDULE_REFRESHED));
 	}
 
 	public static final int PERSON_NAME_COLUMN_INDEX = 1;
@@ -821,8 +813,6 @@ public class DatabaseManager {
 			db.endTransaction();
 
 			if (complete) {
-				context.getContentResolver().notifyChange(URI_EVENTS, null);
-
 				Intent intent = new Intent(ACTION_ADD_BOOKMARK).putExtra(EXTRA_EVENT_ID, event.getId());
 				Date startTime = event.getStartTime();
 				if (startTime != null) {
@@ -870,8 +860,6 @@ public class DatabaseManager {
 			db.endTransaction();
 
 			if (isComplete) {
-				context.getContentResolver().notifyChange(URI_EVENTS, null);
-
 				Intent intent = new Intent(ACTION_REMOVE_BOOKMARKS).putExtra(EXTRA_EVENT_IDS, eventIds);
 				LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 			}

@@ -2,102 +2,118 @@ package org.toulibre.capitoledulibre.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.ColorRes;
 import android.support.annotation.StringRes;
 
 import org.toulibre.capitoledulibre.R;
 
 public class Track implements Parcelable {
 
-	public enum Type {
-		conference(R.string.conference),
-		atelier(R.string.atelier);
+    public enum Type {
+        keynote(R.string.keynote, R.color.track_type_keynote, R.color.track_type_keynote_dark),
+        conference(R.string.conference, R.color.track_type_main, R.color.track_type_main_dark),
+        atelier(R.string.atelier, R.color.track_type_developer_room, R.color.track_type_developer_room_dark);
 
-		private final int nameResId;
+        private final int nameResId;
+        private final int colorResId;
+        private final int darkColorResId;
 
-		Type(@StringRes int nameResId) {
-			this.nameResId = nameResId;
-		}
+        Type(@StringRes int nameResId, @ColorRes int colorResId, @ColorRes int darkColorResId) {
+            this.nameResId = nameResId;
+            this.colorResId = colorResId;
+            this.darkColorResId = darkColorResId;
+        }
 
-		@StringRes
-		public int getNameResId() {
-			return nameResId;
-		}
-	}
+        @StringRes
+        public int getNameResId() {
+            return nameResId;
+        }
 
-	private String name;
-	private Type type;
+        @ColorRes
+        public int getColorResId() {
+            return colorResId;
+        }
 
-	public Track() {
-	}
+        @ColorRes
+        public int getDarkColorResId() {
+            return darkColorResId;
+        }
+    }
 
-	public Track(String name, Type type) {
-		this.name = name;
-		this.type = type;
-	}
+    private String name;
+    private Type type;
 
-	public String getName() {
-		return name;
-	}
+    public Track() {
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public Track(String name, Type type) {
+        this.name = name;
+        this.type = type;
+    }
 
-	public Type getType() {
-		return type;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setType(Type type) {
-		this.type = type;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Override
-	public String toString() {
-		return name;
-	}
+    public Type getType() {
+        return type;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + name.hashCode();
-		result = prime * result + type.hashCode();
-		return result;
-	}
+    public void setType(Type type) {
+        this.type = type;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		Track other = (Track) obj;
-		return name.equals(other.name) && (type == other.type);
-	}
+    @Override
+    public String toString() {
+        return name;
+    }
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + name.hashCode();
+        result = prime * result + type.hashCode();
+        return result;
+    }
 
-	@Override
-	public void writeToParcel(Parcel out, int flags) {
-		out.writeString(name);
-		out.writeInt(type.ordinal());
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        Track other = (Track) obj;
+        return name.equals(other.name) && (type == other.type);
+    }
 
-	public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
-		public Track createFromParcel(Parcel in) {
-			return new Track(in);
-		}
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
-		public Track[] newArray(int size) {
-			return new Track[size];
-		}
-	};
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeString(name);
+        out.writeInt(type.ordinal());
+    }
 
-	Track(Parcel in) {
-		name = in.readString();
-		type = Type.values()[in.readInt()];
-	}
+    public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
+        public Track createFromParcel(Parcel in) {
+            return new Track(in);
+        }
+
+        public Track[] newArray(int size) {
+            return new Track[size];
+        }
+    };
+
+    Track(Parcel in) {
+        name = in.readString();
+        type = Type.values()[in.readInt()];
+    }
 }

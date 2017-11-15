@@ -28,8 +28,11 @@
     <!-- Bookmarks -->
     <string name="filter">Filtrer</string>
     <string name="upcoming_only">Futurs seulement</string>
+    <string name="export_bookmarks">Exporter les favoris</string>
+    <string name="export_bookmarks_file_name">CDL %1$d favoris.ics</string>
     <string name="no_bookmark">Pas de favoris.</string>
     <string name="remove_bookmarks">Supprimer les favoris</string>
+    <string name="bookmark_conflict_content_description">%1$s\n D\'autres favoris sont prévus en même temps.</string>
 
     <plurals name="selected">
         <item quantity="one">%1$d sélectionné</item>
@@ -87,7 +90,16 @@
 
     <string name="settings_notifications_delay_summary">Délai avant d\'être notifié d\'un évènement favori</string>
 
+    <!-- Track schedule -->
+    <string name="in_progress_content_description">%1$s (en cours)</string>
+
     <!-- Event details -->
+    <string name="event_details">Détails de l\'évènement</string>
+    <string name="track_content_description">Thème : %1$s</string>
+    <string name="time_content_description">Horaire : %1$s</string>
+    <string name="room_content_description">Salle : %1$s</string>
+    <string name="details_content_description">Détails : %1$s</string>
+    <string name="in_bookmarks_content_description">Dans les favoris : %1$s</string>
     <string name="related_links_header">Liens associés</string>
     <string name="add_bookmark">Ajouter aux favoris</string>
     <string name="remove_bookmark">Retirer des favoris</string>

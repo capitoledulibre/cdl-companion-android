@@ -3,10 +3,7 @@
 
     <!-- Main theme -->
 
-    <style name="AppTheme" parent="Base.AppTheme">
-        <!-- Workaround for AppCompat bug on API 21-22 -->
-        <item name="android:textColorLink">?android:attr/colorAccent</item>
-    </style>
+    <style name="AppTheme" parent="Base.AppTheme"/>
 
     <style name="AppTheme.NoActionBar.WindowDrawsSystemBarBackgrounds">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
@@ -17,7 +14,7 @@
 
     <style name="FloatingActionButton" parent="FloatingActionButtonBase">
         <item name="android:elevation">@dimen/fab_elevation</item>
-        <item name="android:stateListAnimator">@anim/fab_state_list</item>
+        <item name="android:stateListAnimator">@animator/fab_state_list</item>
     </style>
 
 </resources>
