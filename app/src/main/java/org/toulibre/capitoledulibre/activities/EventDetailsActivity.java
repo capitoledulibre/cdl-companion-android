@@ -3,6 +3,7 @@ package org.toulibre.capitoledulibre.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -20,14 +21,15 @@ import org.toulibre.capitoledulibre.fragments.EventDetailsFragment;
 import org.toulibre.capitoledulibre.loaders.LocalCacheLoader;
 import org.toulibre.capitoledulibre.model.Event;
 import org.toulibre.capitoledulibre.utils.NfcUtils;
-import org.toulibre.capitoledulibre.utils.NfcUtils.CreateNfcAppDataCallback;
+
+import org.toulibre.capitoledulibre.utils.ThemeUtils;
 
 /**
  * Displays a single event passed either as a complete Parcelable object in extras or as an id in data.
  *
  * @author Christophe Beyls
  */
-public class EventDetailsActivity extends AppCompatActivity implements LoaderCallbacks<Event>, CreateNfcAppDataCallback {
+public class EventDetailsActivity extends AppCompatActivity implements LoaderCallbacks<Event>, NfcUtils.CreateNfcAppDataCallback {
 
     public static final String EXTRA_EVENT = "event";
 
@@ -62,10 +64,11 @@ public class EventDetailsActivity extends AppCompatActivity implements LoaderCal
     /**
      * Initialize event-related configuration after the event has been loaded.
      */
-    private void initEvent(Event event) {
+    private void initEvent(@NonNull Event event) {
         this.event = event;
         // Enable up navigation only after getting the event details
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ThemeUtils.setActionBarTrackColor(this, event.getTrack().getType());
         // Enable Android Beam
         NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
     }

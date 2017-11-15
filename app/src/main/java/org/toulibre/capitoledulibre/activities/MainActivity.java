@@ -1,7 +1,5 @@
 package org.toulibre.capitoledulibre.activities;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
@@ -13,12 +11,11 @@ import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -28,13 +25,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
@@ -69,7 +67,10 @@ import org.toulibre.capitoledulibre.widgets.AdapterLinearLayout;
  *
  * @author Christophe Beyls
  */
-public class MainActivity extends AppCompatActivity implements Handler.Callback {
+public class MainActivity extends AppCompatActivity {
+
+    public static final String ACTION_SHORTCUT_BOOKMARKS = BuildConfig.APPLICATION_ID + ".intent.action.SHORTCUT_BOOKMARKS";
+    public static final String ACTION_SHORTCUT_LIVE = BuildConfig.APPLICATION_ID + ".intent.action.SHORTCUT_LIVE";
 
     private enum Section {
         TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true, true),
@@ -116,11 +117,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         }
     }
 
-    static final int SELECT_MENU_SECTION_WHAT = 1;
-    static final int SELECT_MENU_FOOTER_WHAT = 2;
-
-    static final long MENU_ACTION_DELAY = 400L;
-
     private static final long DATABASE_VALIDITY_DURATION = DateUtils.DAY_IN_MILLIS;
     private static final long DOWNLOAD_REMINDER_SNOOZE_DURATION = DateUtils.DAY_IN_MILLIS;
     private static final String PREF_LAST_DOWNLOAD_REMINDER_TIME = "last_download_reminder_time";
@@ -129,12 +125,13 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
     private static final String LAST_UPDATE_DATE_FORMAT = "d MMM yyyy kk:mm:ss";
 
 
-    Handler handler;
     private Toolbar toolbar;
     ProgressBar progressBar;
 
     // Main menu
     Section currentSection;
+    int pendingMenuSection = -1;
+    int pendingMenuFooter = -1;
     DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     View mainMenu;
@@ -214,8 +211,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        handler = new Handler(this);
-
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -228,13 +223,36 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.main_menu, R.string.close_menu) {
 
             @Override
+            public void onDrawerStateChanged(int newState) {
+                super.onDrawerStateChanged(newState);
+                if (newState == DrawerLayout.STATE_DRAGGING) {
+                    pendingMenuSection = -1;
+                    pendingMenuFooter = -1;
+                }
+            }
+
+            @Override
             public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
                 // Make keypad navigation easier
                 mainMenu.requestFocus();
             }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                if (pendingMenuSection != -1) {
+                    selectMenuSection(pendingMenuSection);
+                    pendingMenuSection = -1;
+                }
+                if (pendingMenuFooter != -1) {
+                    selectMenuFooter(pendingMenuFooter);
+                    pendingMenuFooter = -1;
+                }
+            }
         };
         drawerToggle.setDrawerIndicatorEnabled(true);
-        drawerLayout.setDrawerListener(drawerToggle);
+        drawerLayout.addDrawerListener(drawerToggle);
         // Disable drawerLayout focus to allow trackball navigation.
         // We handle the drawer closing on back press ourselves.
         drawerLayout.setFocusable(false);
@@ -256,6 +274,18 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         // Restore current section
         if (savedInstanceState == null) {
             currentSection = Section.TRACKS;
+            String action = getIntent().getAction();
+            if (action != null) {
+                switch (action) {
+                    case ACTION_SHORTCUT_BOOKMARKS:
+                        currentSection = Section.BOOKMARKS;
+                        break;
+                    case ACTION_SHORTCUT_LIVE:
+                        currentSection = Section.LIVE;
+                        break;
+                }
+            }
+
             String fragmentClassName = currentSection.getFragmentClassName();
             Fragment f = Fragment.instantiate(this, fragmentClassName);
             getSupportFragmentManager().beginTransaction().add(R.id.content, f, fragmentClassName).commit();
@@ -279,9 +309,8 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
     }
 
     private void updateActionBar() {
-        getSupportActionBar().setTitle(currentSection.getTitleResId());
+        setTitle(currentSection.getTitleResId());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            //noinspection ResourceType
             toolbar.setElevation(currentSection.extendsAppBar()
                     ? 0f : getResources().getDimension(R.dimen.toolbar_elevation));
         }
@@ -313,7 +342,8 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         // Ensure no fragment transaction attempt will occur after onSaveInstanceState()
-        handler.removeCallbacksAndMessages(null);
+        pendingMenuSection = -1;
+        pendingMenuFooter = -1;
         super.onSaveInstanceState(outState);
         outState.putInt(STATE_CURRENT_SECTION, currentSection.ordinal());
     }
@@ -337,9 +367,9 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
             SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
             time = prefs.getLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, -1L);
             if ((time == -1L) || (time < (now - DOWNLOAD_REMINDER_SNOOZE_DURATION))) {
-                SharedPreferencesCompat.EditorCompat.getInstance().apply(
-                        prefs.edit().putLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, now)
-                );
+                prefs.edit()
+                        .putLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, now)
+                        .apply();
 
                 FragmentManager fm = getSupportFragmentManager();
                 if (fm.findFragmentByTag("download_reminder") == null) {
@@ -379,6 +409,11 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            // Animated refresh icon
+            menu.findItem(R.id.refresh).setIcon(R.drawable.avd_sync_white_24dp);
+        }
+
         return true;
     }
 
@@ -390,16 +425,19 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         }
 
         switch (item.getItemId()) {
-            case R.id.search:
-                return false;
             case R.id.refresh:
+                Drawable icon = item.getIcon();
+                if (icon instanceof Animatable) {
+                    // Hack: reset the icon to make sure the MenuItem will redraw itself properly
+                    item.setIcon(icon);
+                    ((Animatable) icon).start();
+                }
                 startDownloadSchedule();
                 return true;
         }
         return false;
     }
 
-    @SuppressLint("NewApi")
     public void startDownloadSchedule() {
         // Start by displaying indeterminate progress, determinate will come later
         progressBar.clearAnimation();
@@ -464,7 +502,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
             TextView tv = (TextView) convertView.findViewById(R.id.section_text);
             SpannableString sectionTitle = new SpannableString(getString(section.getTitleResId()));
-            Drawable sectionIcon = ContextCompat.getDrawable(MainActivity.this, section.getIconResId());
+            Drawable sectionIcon = AppCompatDrawableManager.get().getDrawable(MainActivity.this, section.getIconResId());
             if (section == currentSection) {
                 // Special color for the current section
                 sectionTitle.setSpan(new ForegroundColorSpan(currentSectionForegroundColor), 0, sectionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -481,15 +519,12 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
     final View.OnClickListener sectionClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            int sectionIndex = ((ViewGroup) view.getParent()).indexOfChild(view);
-            // Cancel pending section selection, if any
-            handler.removeMessages(SELECT_MENU_SECTION_WHAT);
-            handler.sendMessageDelayed(handler.obtainMessage(SELECT_MENU_SECTION_WHAT, sectionIndex, 0), MENU_ACTION_DELAY);
+            pendingMenuSection = ((ViewGroup) view.getParent()).indexOfChild(view);
             drawerLayout.closeDrawer(mainMenu);
         }
     };
 
-    private void selectMenuSection(int position) {
+    void selectMenuSection(int position) {
         Section section = menuAdapter.getItem(position);
         if (section != currentSection) {
             // Switch to new section
@@ -522,12 +557,12 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
         @Override
         public void onClick(View view) {
-            handler.sendMessageDelayed(handler.obtainMessage(SELECT_MENU_FOOTER_WHAT, view.getId(), 0), MENU_ACTION_DELAY);
+            pendingMenuFooter = view.getId();
             drawerLayout.closeDrawer(mainMenu);
         }
     };
 
-    private void selectMenuFooter(int id) {
+    void selectMenuFooter(int id) {
         switch (id) {
             case R.id.settings:
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
@@ -537,19 +572,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
                 new AboutDialogFragment().show(getSupportFragmentManager(), "about");
                 break;
         }
-    }
-
-    @Override
-    public boolean handleMessage(Message message) {
-        switch (message.what) {
-            case SELECT_MENU_SECTION_WHAT:
-                selectMenuSection(message.arg1);
-                return true;
-            case SELECT_MENU_FOOTER_WHAT:
-                selectMenuFooter(message.arg1);
-                return true;
-        }
-        return false;
     }
 
     public static class AboutDialogFragment extends DialogFragment {

@@ -1,30 +1,25 @@
 package org.toulibre.capitoledulibre.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
+import android.view.ViewGroup;
 
 import org.toulibre.capitoledulibre.R;
-import org.toulibre.capitoledulibre.activities.EventDetailsActivity;
+import org.toulibre.capitoledulibre.adapters.ConcatAdapter;
 import org.toulibre.capitoledulibre.adapters.EventsAdapter;
 import org.toulibre.capitoledulibre.db.DatabaseManager;
 import org.toulibre.capitoledulibre.loaders.SimpleCursorLoader;
-import org.toulibre.capitoledulibre.model.Event;
 import org.toulibre.capitoledulibre.model.Person;
-import org.toulibre.capitoledulibre.utils.WebUtils;
 import org.toulibre.capitoledulibre.utils.customtabs.CustomTabsHelperFragment;
 
-public class PersonInfoListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
+public class PersonInfoListFragment extends RecyclerViewFragment implements LoaderCallbacks<Cursor> {
 
 	private static final int PERSON_EVENTS_LOADER_ID = 1;
 	private static final String ARG_PERSON = "person";
@@ -46,22 +41,33 @@ public class PersonInfoListFragment extends SmoothListFragment implements Loader
 
 		adapter = new EventsAdapter(getActivity());
 		person = getArguments().getParcelable(ARG_PERSON);
-		setHasOptionsMenu(true);
+		//setHasOptionsMenu(true);
 	}
 
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.person, menu);
-	}
+//	@Override
+//	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//		inflater.inflate(R.menu.person, menu);
+//	}
+//
+//	@Override
+//	public boolean onOptionsItemSelected(MenuItem item) {
+//		switch (item.getItemId()) {
+//			case R.id.more_info:
+//				WebUtils.openWebLink(getActivity(), Uri.parse(person.getUrl()));
+//				return true;
+//		}
+//		return false;
+//	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.more_info:
-				WebUtils.openWebLink(getActivity(), Uri.parse(person.getUrl()));
-				return true;
-		}
-		return false;
+	protected void onRecyclerViewCreated(RecyclerView recyclerView, Bundle savedInstanceState) {
+		final int contentMargin = getResources().getDimensionPixelSize(R.dimen.content_margin);
+		recyclerView.setPadding(contentMargin, contentMargin, contentMargin, contentMargin);
+		recyclerView.setClipToPadding(false);
+		recyclerView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
+
+		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+		recyclerView.setAdapter(new ConcatAdapter(new HeaderAdapter(), adapter));
 	}
 
 	@Override
@@ -69,18 +75,7 @@ public class PersonInfoListFragment extends SmoothListFragment implements Loader
 		super.onActivityCreated(savedInstanceState);
 
 		setEmptyText(getString(R.string.no_data));
-
-		int contentMargin = getResources().getDimensionPixelSize(R.dimen.content_margin);
-		ListView listView = getListView();
-		listView.setPadding(contentMargin, contentMargin, contentMargin, contentMargin);
-		listView.setClipToPadding(false);
-		listView.setScrollBarStyle(ListView.SCROLLBARS_OUTSIDE_OVERLAY);
-
-		View headerView = LayoutInflater.from(getActivity()).inflate(R.layout.header_person_info, null);
-		getListView().addHeaderView(headerView, null, false);
-
-		setListAdapter(adapter);
-		setListShown(false);
+		setProgressBarVisible(true);
 
 		getLoaderManager().initLoader(PERSON_EVENTS_LOADER_ID, null, this);
 
@@ -113,7 +108,7 @@ public class PersonInfoListFragment extends SmoothListFragment implements Loader
 			adapter.swapCursor(data);
 		}
 
-		setListShown(true);
+		setProgressBarVisible(false);
 	}
 
 	@Override
@@ -121,10 +116,34 @@ public class PersonInfoListFragment extends SmoothListFragment implements Loader
 		adapter.swapCursor(null);
 	}
 
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		Event event = adapter.getItem(position - 1);
-		Intent intent = new Intent(getActivity(), EventDetailsActivity.class).putExtra(EventDetailsActivity.EXTRA_EVENT, event);
-		startActivity(intent);
+	static class HeaderAdapter extends RecyclerView.Adapter<HeaderAdapter.ViewHolder> {
+
+		@Override
+		public int getItemCount() {
+			return 1;
+		}
+
+		@Override
+		public int getItemViewType(int position) {
+			return R.layout.header_person_info;
+		}
+
+		@Override
+		public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+			View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.header_person_info, null);
+			return new ViewHolder(view);
+		}
+
+		@Override
+		public void onBindViewHolder(ViewHolder holder, int position) {
+			// Nothing to bind
+		}
+
+		static class ViewHolder extends RecyclerView.ViewHolder {
+
+			public ViewHolder(View itemView) {
+				super(itemView);
+			}
+		}
 	}
 }

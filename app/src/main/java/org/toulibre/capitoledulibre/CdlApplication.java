@@ -5,7 +5,7 @@ import android.preference.PreferenceManager;
 
 import com.squareup.leakcanary.LeakCanary;
 
-import org.toulibre.capitoledulibre.alarms.FosdemAlarmManager;
+import org.toulibre.capitoledulibre.alarms.AlarmManager;
 import org.toulibre.capitoledulibre.db.DatabaseManager;
 
 public class CdlApplication extends Application {
@@ -21,6 +21,6 @@ public class CdlApplication extends Application {
         // Initialize settings
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
         // Alarms (requires settings)
-        FosdemAlarmManager.init(this);
+        AlarmManager.getInstance(this);
     }
 }

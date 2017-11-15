@@ -3,6 +3,7 @@ package org.toulibre.capitoledulibre.fragments;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -11,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.TextViewCompat;
+import android.support.v7.widget.AppCompatDrawableManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -187,7 +189,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 
 				// Ensure the current selection is visible
 				if (checkedPosition != ListView.INVALID_POSITION) {
-					setSelection(checkedPosition);
+					getListView().setSelection(checkedPosition);
 				}
 				// Notify the parent of the current selection to synchronize its state
 				notifyEventSelected(checkedPosition);
@@ -195,7 +197,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 			} else if (!isListAlreadyShown) {
 				int position = getDefaultPosition();
 				if (position != ListView.INVALID_POSITION) {
-					setSelection(position);
+					getListView().setSelection(position);
 				}
 			}
 			isListAlreadyShown = true;
@@ -289,24 +291,36 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 			Event event = DatabaseManager.toEvent(cursor, holder.event);
 			holder.event = event;
 
-			holder.time.setText(timeDateFormat.format(event.getStartTime()));
+			String formattedTime = timeDateFormat.format(event.getStartTime());
+			holder.time.setText(formattedTime);
 			if ((currentTime != -1L) && event.isRunningAtTime(currentTime)) {
 				// Contrast colors for running event
 				holder.time.setBackgroundColor(timeRunningBackgroundColor);
 				holder.time.setTextColor(timeRunningForegroundColor);
+				holder.time.setContentDescription(context.getString(R.string.in_progress_content_description, formattedTime));
 			} else {
 				// Normal colors
 				holder.time.setBackgroundColor(timeBackgroundColor);
 				holder.time.setTextColor(timeForegroundColor);
+				// Use text as content description
+				holder.time.setContentDescription(null);
 			}
 
 			holder.title.setText(event.getTitle());
-			int bookmarkDrawable = DatabaseManager.toBookmarkStatus(cursor) ? R.drawable.ic_bookmark_grey600_24dp : 0;
-			TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(holder.title, 0, 0, bookmarkDrawable, 0);
+			boolean isBookmarked = DatabaseManager.toBookmarkStatus(cursor);
+			Drawable bookmarkDrawable = isBookmarked
+					? AppCompatDrawableManager.get().getDrawable(context, R.drawable.ic_bookmark_grey600_24dp)
+					: null;
+			TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(holder.title, null, null, bookmarkDrawable, null);
+			holder.title.setContentDescription(isBookmarked
+					? context.getString(R.string.in_bookmarks_content_description, event.getTitle())
+					: null
+			);
 			String personsSummary = event.getPersonsSummary();
 			holder.persons.setText(personsSummary);
 			holder.persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
 			holder.room.setText(event.getRoomName());
+			holder.room.setContentDescription(context.getString(R.string.room_content_description, event.getRoomName()));
 		}
 
 		static class ViewHolder {

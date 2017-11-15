@@ -1,15 +1,5 @@
 package org.toulibre.capitoledulibre.activities;
 
-import org.toulibre.capitoledulibre.R;
-import org.toulibre.capitoledulibre.fragments.EventDetailsFragment;
-import org.toulibre.capitoledulibre.fragments.RoomImageDialogFragment;
-import org.toulibre.capitoledulibre.fragments.TrackScheduleListFragment;
-import org.toulibre.capitoledulibre.model.Day;
-import org.toulibre.capitoledulibre.model.Event;
-import org.toulibre.capitoledulibre.model.Track;
-import org.toulibre.capitoledulibre.utils.NfcUtils;
-import org.toulibre.capitoledulibre.utils.NfcUtils.CreateNfcAppDataCallback;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,6 +11,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.ImageView;
+
+import org.toulibre.capitoledulibre.R;
+import org.toulibre.capitoledulibre.fragments.EventDetailsFragment;
+import org.toulibre.capitoledulibre.fragments.TrackScheduleListFragment;
+import org.toulibre.capitoledulibre.model.Day;
+import org.toulibre.capitoledulibre.model.Event;
+import org.toulibre.capitoledulibre.model.Track;
+import org.toulibre.capitoledulibre.utils.NfcUtils;
+import org.toulibre.capitoledulibre.utils.NfcUtils.CreateNfcAppDataCallback;
+
+import org.toulibre.capitoledulibre.utils.ThemeUtils;
 
 /**
  * Track Schedule container, works in both single pane and dual pane modes.
@@ -60,6 +61,8 @@ public class TrackScheduleActivity extends AppCompatActivity
 		bar.setDisplayHomeAsUpEnabled(true);
 		bar.setTitle(track.toString());
 		bar.setSubtitle(day.toString());
+		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));
+		ThemeUtils.setActionBarTrackColor(this, track.getType());
 
 		isTabletLandscape = getResources().getBoolean(R.bool.tablet_landscape);
 
@@ -82,18 +85,8 @@ public class TrackScheduleActivity extends AppCompatActivity
 
 				Fragment eventDetailsFragment = fm.findFragmentById(R.id.event);
 				if (eventDetailsFragment != null) {
-					if (ft == null) {
-						ft = fm.beginTransaction();
-					}
+					ft = fm.beginTransaction();
 					ft.remove(eventDetailsFragment);
-				}
-
-				Fragment roomImageDialogFragment = fm.findFragmentByTag(RoomImageDialogFragment.TAG);
-				if (roomImageDialogFragment != null) {
-					if (ft == null) {
-						ft = fm.beginTransaction();
-					}
-					ft.remove(roomImageDialogFragment);
 				}
 
 				if (ft != null) {
