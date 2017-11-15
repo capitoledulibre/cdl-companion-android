@@ -2,26 +2,21 @@ package org.toulibre.capitoledulibre.fragments;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import org.toulibre.capitoledulibre.adapters.ConcatAdapter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.toulibre.capitoledulibre.R;
+import org.toulibre.capitoledulibre.adapters.ConcatAdapter;
 import org.toulibre.capitoledulibre.adapters.EventsAdapter;
 import org.toulibre.capitoledulibre.db.DatabaseManager;
 import org.toulibre.capitoledulibre.loaders.SimpleCursorLoader;
 import org.toulibre.capitoledulibre.model.Person;
-import org.toulibre.capitoledulibre.utils.WebUtils;
 import org.toulibre.capitoledulibre.utils.customtabs.CustomTabsHelperFragment;
 
 public class PersonInfoListFragment extends RecyclerViewFragment implements LoaderCallbacks<Cursor> {
@@ -46,23 +41,23 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 
 		adapter = new EventsAdapter(getActivity());
 		person = getArguments().getParcelable(ARG_PERSON);
-		setHasOptionsMenu(true);
+		//setHasOptionsMenu(true);
 	}
 
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.person, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.more_info:
-				WebUtils.openWebLink(getActivity(), Uri.parse(person.getUrl()));
-				return true;
-		}
-		return false;
-	}
+//	@Override
+//	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//		inflater.inflate(R.menu.person, menu);
+//	}
+//
+//	@Override
+//	public boolean onOptionsItemSelected(MenuItem item) {
+//		switch (item.getItemId()) {
+//			case R.id.more_info:
+//				WebUtils.openWebLink(getActivity(), Uri.parse(person.getUrl()));
+//				return true;
+//		}
+//		return false;
+//	}
 
 	@Override
 	protected void onRecyclerViewCreated(RecyclerView recyclerView, Bundle savedInstanceState) {

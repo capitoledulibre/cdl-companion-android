@@ -211,7 +211,6 @@ public class BookmarksExportProvider extends ContentProvider {
 			}
 			writer.write("CLASS", "PUBLIC");
 			writer.write("CATEGORIES", event.getTrack().getName());
-			writer.write("URL", event.getUrl());
 			writer.write("LOCATION", event.getRoomName());
 
 			writer.write("END", "VEVENT");

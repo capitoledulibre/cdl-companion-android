@@ -233,9 +233,9 @@ public class EventDetailsFragment extends Fragment {
 
     private Intent getShareChooserIntent() {
         return ShareCompat.IntentBuilder.from(getActivity())
-                .setSubject(String.format("%1$s (FOSDEM)", event.getTitle()))
+                .setSubject(String.format("%1$s (CdL)", event.getTitle()))
                 .setType("text/plain")
-                .setText(String.format("%1$s %2$s #FOSDEM", event.getTitle(), event.getUrl()))
+                .setText(String.format("%1$s #CdL", event.getTitle()))
                 .setChooserTitle(R.string.share)
                 .createChooserIntent();
     }
