@@ -26,7 +26,8 @@ public class MapFragment extends Fragment {
 
     private static final String NATIVE_URI = "google.navigation:q=%1$f,%2$f&mode=d";
 
-    private static final Uri WEB_URI = Uri.parse("https://goo.gl/maps/atYtpUZCouy");
+    //private static final Uri WEB_URI_GOOGLE = Uri.parse("https://goo.gl/maps/atYtpUZCouy");
+    private static final Uri WEB_URI = Uri.parse("https://www.openstreetmap.org/way/22634781");
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
